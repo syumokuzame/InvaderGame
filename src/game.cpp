@@ -1,0 +1,58 @@
+#include "game.h"
+#include "config.h"
+#include <windows.h>
+
+Game::Game()
+    : state_(GameState::Playing), level_(1), running_(true) {}
+
+Game::~Game() = default;
+
+void Game::run() {
+    while (running_) {
+        DWORD frameStart = GetTickCount();
+
+        processInput();
+        update();
+        render();
+
+        // フレームレート制御
+        DWORD elapsed = GetTickCount() - frameStart;
+        if (elapsed < static_cast<DWORD>(Config::FRAME_MS))
+            Sleep(Config::FRAME_MS - elapsed);
+    }
+}
+
+void Game::processInput() {
+    input_.poll();
+
+    if (input_.isQuit())  { running_ = false; return; }
+    if (input_.isLeft())  player_.moveLeft();
+    if (input_.isRight()) player_.moveRight();
+}
+
+void Game::update() {
+    player_.update();
+}
+
+void Game::render() {
+    renderer_.clear();
+
+    // フィールド枠（上下）
+    for (int x = 0; x < Config::FIELD_WIDTH; ++x) {
+        renderer_.draw(x, 0, '=');
+        renderer_.draw(x, Config::FIELD_HEIGHT - 1, '=');
+    }
+    // フィールド枠（左右）
+    for (int y = 1; y < Config::FIELD_HEIGHT - 1; ++y) {
+        renderer_.draw(0, y, '|');
+        renderer_.draw(Config::FIELD_WIDTH - 1, y, '|');
+    }
+
+    // ヒント表示
+    renderer_.drawString(2, 1, "INVADER GAME  [<][>]:Move  [Q/Esc]:Quit");
+
+    // プレイヤー描画
+    player_.render(renderer_);
+
+    renderer_.present();
+}
