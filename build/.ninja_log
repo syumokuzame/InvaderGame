@@ -1,9 +1,7 @@
 # ninja log v6
-63	245	8003871983763149	CMakeFiles/InvaderGame.dir/src/bullet.cpp.obj	5ae34fabb960ce30
-91	347	8003859647569904	CMakeFiles/InvaderGame.dir/src/input_handler.cpp.obj	8d85dab5b07e7793
-99	870	8003871984145275	CMakeFiles/InvaderGame.dir/src/player.cpp.obj	c3c21bf187adbd6d
-103	327	8003859647695630	CMakeFiles/InvaderGame.dir/src/main.cpp.obj	efaa5632d1ef6338
-83	1679	8003871983967012	CMakeFiles/InvaderGame.dir/src/game.cpp.obj	505f7af65b7f3aae
-52	2156	8003869950435070	CMakeFiles/InvaderGame.dir/src/renderer.cpp.obj	137fb47fcf9f0356
-2161	2678	8003869971543237	InvaderGame.exe	d9d829a2517e1bc4
-95	799	8003872845177758	InvaderGame.exe	2574fa99dc6614e7
+77	126	8004633225698537	CMakeFiles/InvaderGame.dir/src/main.cpp.obj	ea59f59c143c9b5f
+79	150	8004633225728922	CMakeFiles/InvaderGame.dir/src/player.cpp.obj	b474dff6b2a17383
+74	155	8004633225667971	CMakeFiles/InvaderGame.dir/src/input_handler.cpp.obj	1f5d28677abb3657
+82	432	8004633225759370	CMakeFiles/InvaderGame.dir/src/renderer.cpp.obj	6311c35f1ea1b105
+21	455	8004633225627552	CMakeFiles/InvaderGame.dir/src/game.cpp.obj	3a4ffd8ac67d9692
+455	674	8004633229482714	InvaderGame.exe	d9d829a2517e1bc4

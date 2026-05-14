@@ -1,0 +1,23 @@
+# Build directories
+build/
+cmake-build-debug/
+cmake-build-release/
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Executables and libraries
+*.exe
+*.dll
+*.so
+*.a
+*.lib
+*.o
+*.obj
