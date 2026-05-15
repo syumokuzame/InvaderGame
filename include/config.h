@@ -5,6 +5,7 @@
 namespace Config {
     constexpr int FIELD_WIDTH  = 80;   // フィールド幅（文字数）
     constexpr int FIELD_HEIGHT = 25;   // フィールド高さ（行数）
+    constexpr int UI_HEIGHT    = 2;    // 上部UI高さ（行数）
     constexpr int FPS          = 60;   // 目標フレームレート
     constexpr int FRAME_MS     = 1000 / FPS;
 

@@ -20,7 +20,7 @@ void InvaderSwarm::reset(int level) {
 
     // フィールドサイズに応じて敵機を動的配置
     const int MARGIN_X = 2;            // 左右マージン: 各2文字
-    const int MARGIN_Y = 2;            // 上マージン
+    const int MARGIN_Y = Config::UI_HEIGHT + 2;  // 上マージン（UI領域の下 + 2行分）
     const int MARGIN_BOTTOM = 3;       // 下マージン（プレイヤーとの距離確保）
 
     // 有効な配置幅と高さ
