@@ -9,7 +9,7 @@ Game::Game()
     gameStartTime_ = std::time(nullptr);
     // 初期敵数をカウント
     for (const auto& inv : swarm_.invaders()) {
-        if (inv.isAlive()) lastAliveCount_++;
+        if (inv.isActive()) lastAliveCount_++;
     }
 }
 
@@ -59,7 +59,7 @@ void Game::update() {
         // 敵撃破スコア加算処理
         int currentAliveCount = 0;
         for (const auto& inv : swarm_.invaders()) {
-            if (inv.isAlive()) currentAliveCount++;
+            if (inv.isActive()) currentAliveCount++;
         }
         int defeatedCount = lastAliveCount_ - currentAliveCount;
         if (defeatedCount > 0) {
@@ -80,7 +80,7 @@ void Game::update() {
             swarm_.reset(level_);
             lastAliveCount_ = 0;
             for (const auto& inv : swarm_.invaders()) {
-                if (inv.isAlive()) lastAliveCount_++;
+                if (inv.isActive()) lastAliveCount_++;
             }
             // 弾をクリア
             bullets_.clear();

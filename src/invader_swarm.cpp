@@ -51,6 +51,8 @@ void InvaderSwarm::reset(int level) {
             int x = start_x + col * slot_width;
             int y = start_y + row * slot_height;
             invaders_.emplace_back(x, y, row);
+            // 敵を即座にスポーン状態にする
+            invaders_.back().spawn();
         }
     }
 }
