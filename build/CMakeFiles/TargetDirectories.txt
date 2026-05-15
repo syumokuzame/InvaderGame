@@ -1,3 +1,0 @@
-C:/Users/7800X3D/InvaderGame/build/CMakeFiles/InvaderGame.dir
-C:/Users/7800X3D/InvaderGame/build/CMakeFiles/edit_cache.dir
-C:/Users/7800X3D/InvaderGame/build/CMakeFiles/rebuild_cache.dir
