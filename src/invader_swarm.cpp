@@ -128,10 +128,18 @@ void InvaderSwarm::render(Renderer& renderer) const {
 }
 
 bool InvaderSwarm::allDefeated() const {
+    // スポーン中の敵がいれば全滅していない
+    for (const auto& inv : invaders_) {
+        if (inv.isSpawning()) return false;
+    }
+    
+    // スポーン完了した敵の中で、生存敵（倒されていない敵）がいれば全滅していない
     for (const auto& inv : invaders_) {
         if (inv.isAlive()) return false;
     }
-    return invaders_.empty();
+    
+    // スポーン敵も生存敵もいない → 全滅状態
+    return true;
 }
 
 bool InvaderSwarm::hasReachedBottom() const {
