@@ -144,9 +144,14 @@
   - `Invader` クラスに `spawnFrame_` メンバ追加（0-3=スポーン中、4以上=スポーン完了）
   - `Invader::update()` で spawnFrame_ をインクリメント、4に到達時に alive_ を true に設定
   - `Invader::spawn()` メソッド追加（spawnFrame_ をリセット）
+  - `Invader::isSpawning()` メソッド追加（スポーン中か判定）
   - `Invader::isActive()` メソッド追加（スポーン中 || 生存中）
   - `Invader::render()` でスポーン状態に応じた文字を描画
   - `Invader::isAlive()` がスポーン完了後の敵のみを示すように修正
+  - `InvaderSwarm::allDefeated()` 修正：
+    - スポーン中の敵がいれば false
+    - 生存敵（倒されていない敵）がいれば false
+    - スポーン敵も生存敵もいない場合のみ true
   - `InvaderSwarm::reset()` で敵を spawn() 状態で生成
   - `Game::update()` で敵数カウント時に isActive() を使用（スポーン中も含める）
   - 当たり判定時は isAlive() を使用（スポーン完了敵のみ）
@@ -154,6 +159,20 @@
   - ゲーム開始時に敵が画面に見えない状態から段階的に出現
   - リスポーン時も同じスポーンアニメーション表示
   - スポーン中の敵には当たり判定なし
+  - スポーン中に敵全滅と判定されない
+  - ビルド成功、git push 完了
+
+### [2026-05-15] 敵全滅判定バグ修正
+- **問題**: スポーン中の敵が alive_=false のため、allDefeated() が誤判定し、敵が画面に出ていないうちに Clear になってしまった
+- **修正内容**:
+  - `Invader::isSpawning()` メソッド追加
+  - `InvaderSwarm::allDefeated()` ロジック改善：
+    - スポーン中の敵をチェック（isSpawning() = true なら敵が存在）
+    - 生存敵をチェック（isAlive() = true なら敵が存在）
+    - 両方ともなくなった場合のみ全滅と判定
+- **検証**: 
+  - ゲーム開始時に敵が出現するまで待機
+  - 敵を倒すまで Clear にならない
   - ビルド成功、git push 完了
 
 ---
