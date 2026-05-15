@@ -29,6 +29,7 @@ private:
     void processInput();
     void update();
     void render();
+    void debugKillAllInvaders();  // デバッグ機能：A キーで全敵削除
 
     GameState     state_;
     int           level_;

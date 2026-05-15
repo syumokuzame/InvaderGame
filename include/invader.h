@@ -24,8 +24,8 @@ public:
 private:
     // 消滅アニメーション: * → + → . → 消滅（各4フレーム計12フレーム）
     static constexpr int DEATH_FRAMES = 12;
-    // スポーンアニメーション: . → o → O → * (各1フレーム計4フレーム)
-    static constexpr int SPAWN_FRAMES = 4;
+    // スポーンアニメーション: . → o → O → * (各2フレーム計8フレーム)
+    static constexpr int SPAWN_FRAMES = 8;
 
     int  x_;
     int  y_;

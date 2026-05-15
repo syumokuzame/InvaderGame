@@ -7,7 +7,8 @@
     X(Shoot, shoot) \
     X(Pause, pause) \
     X(Quit,  quit) \
-    X(Enter, enter)
+    X(Enter, enter) \
+    X(DebugKillAll, debugKillAll)
 
 // キー入力の非ブロッキング取得 (Windows Console API)
 class InputHandler {

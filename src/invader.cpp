@@ -52,7 +52,7 @@ void Invader::render(Renderer& renderer) const {
     // スポーン中：アニメーション表現
     if (spawnFrame_ < SPAWN_FRAMES) {
         char spawnChars[] = { '.', 'o', 'O', '*' };
-        char ch = spawnChars[spawnFrame_];
+        char ch = spawnChars[spawnFrame_ / 2];
         renderer.draw(x_ - 1, y_, ch);
         renderer.draw(x_, y_, ch);
         renderer.draw(x_ + 1, y_, ch);

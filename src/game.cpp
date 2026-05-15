@@ -42,6 +42,10 @@ void Game::processInput() {
             bullets_.emplace_back(player_.x(), player_.y() - 1, BulletOwner::Player);
         }
     }
+    // デバッグ：A キーで全敵削除
+    if (input_.isDebugKillAll()) {
+        debugKillAllInvaders();
+    }
 }
 
 void Game::update() {
@@ -143,4 +147,13 @@ void Game::render() {
     }
 
     renderer_.present();
+}
+
+void Game::debugKillAllInvaders() {
+    // 全敵を削除
+    for (auto& inv : swarm_.invaders()) {
+        if (!inv.isFullyDead()) {
+            inv.kill();
+        }
+    }
 }

@@ -8,7 +8,8 @@
     X(Shoot, shoot) \
     X(Pause, pause) \
     X(Quit,  quit) \
-    X(Enter, enter)
+    X(Enter, enter) \
+    X(DebugKillAll, debugKillAll)
 
 // コンストラクタ：メンバ変数は = false で初期化済みなので本体は空でOK
 InputHandler::InputHandler() {}
@@ -28,6 +29,7 @@ void InputHandler::poll() {
     if (GetAsyncKeyState('Q')      & 0x8000) quit_  = true;
     if (GetAsyncKeyState(VK_ESCAPE)& 0x8000) quit_  = true;
     if (GetAsyncKeyState(VK_RETURN)& 0x8000) enter_ = true;
+    if (GetAsyncKeyState('A')      & 0x8000) debugKillAll_ = true;
 }
 
 // マクロで各種ゲッター関数を生成
