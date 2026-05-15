@@ -40,10 +40,14 @@ void Game::processInput() {
 void Game::update() {
     player_.update();
 
-    // 弾を更新し、画面外に出た弾を削除
+    // 弾を更新
     for (auto& b : bullets_) {
         b.update();
     }
+
+    // インベーダー群を更新（弾との当たり判定含む）
+    swarm_.update(bullets_);
+
     // 非アクティブな弾を除去し、プレイヤー弾フラグもリセット
     bullets_.erase(
         std::remove_if(bullets_.begin(), bullets_.end(),
@@ -79,6 +83,9 @@ void Game::render() {
     // 弾を描画
     for (const auto& b : bullets_)
         b.render(renderer_);
+
+    // インベーダー群を描画
+    swarm_.render(renderer_);
 
     // プレイヤー描画
     player_.render(renderer_);

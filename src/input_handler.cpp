@@ -1,12 +1,23 @@
 #include "input_handler.h"
 #include <conio.h>
 
-InputHandler::InputHandler()
-    : left_(false), right_(false), shoot_(false),
-      pause_(false), quit_(false), enter_(false) {}
+// X マクロでキーボタン情報を再定義
+#define KEY_BUTTONS(X) \
+    X(Left,  left) \
+    X(Right, right) \
+    X(Shoot, shoot) \
+    X(Pause, pause) \
+    X(Quit,  quit) \
+    X(Enter, enter)
+
+// コンストラクタ：メンバ変数は = false で初期化済みなので本体は空でOK
+InputHandler::InputHandler() {}
 
 void InputHandler::poll() {
-    left_ = right_ = shoot_ = pause_ = quit_ = enter_ = false;
+    // マクロで各メンバ変数をリセット
+    #define RESET_MEMBER(CamelCase, snake_case) snake_case##_ = false;
+    KEY_BUTTONS(RESET_MEMBER)
+    #undef RESET_MEMBER
 
     while (_kbhit()) {
         int ch = _getch();
@@ -28,9 +39,10 @@ void InputHandler::poll() {
     }
 }
 
-bool InputHandler::isLeft()  const { return left_;  }
-bool InputHandler::isRight() const { return right_; }
-bool InputHandler::isShoot() const { return shoot_; }
-bool InputHandler::isPause() const { return pause_; }
-bool InputHandler::isQuit()  const { return quit_;  }
-bool InputHandler::isEnter() const { return enter_; }
+// マクロで各種ゲッター関数を生成
+#define DEFINE_GETTER(CamelCase, snake_case) \
+bool InputHandler::is##CamelCase() const { return snake_case##_; }
+KEY_BUTTONS(DEFINE_GETTER)
+#undef DEFINE_GETTER
+
+#undef KEY_BUTTONS

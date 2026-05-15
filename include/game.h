@@ -5,6 +5,7 @@
 #include "player.h"
 #include "input_handler.h"
 #include "bullet.h"
+#include "invader_swarm.h"
 #include <vector>
 
 enum class GameState {
@@ -35,4 +36,5 @@ private:
     Player        player_;
     InputHandler  input_;
     std::vector<Bullet> bullets_;
+    InvaderSwarm  swarm_;
 };

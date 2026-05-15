@@ -1,5 +1,14 @@
 #pragma once
 
+// X マクロでキーボタン情報を定義
+#define KEY_BUTTONS(X) \
+    X(Left,  left) \
+    X(Right, right) \
+    X(Shoot, shoot) \
+    X(Pause, pause) \
+    X(Quit,  quit) \
+    X(Enter, enter)
+
 // キー入力の非ブロッキング取得 (Windows Console API)
 class InputHandler {
 public:
@@ -7,13 +16,16 @@ public:
 
     void poll();   // 入力状態を更新
 
-    bool isLeft()  const;
-    bool isRight() const;
-    bool isShoot() const;
-    bool isPause() const;
-    bool isQuit()  const;
-    bool isEnter() const;
+    // マクロでゲッター関数を宣言
+    #define DECLARE_GETTER(CamelCase, snake_case) bool is##CamelCase() const;
+    KEY_BUTTONS(DECLARE_GETTER)
+    #undef DECLARE_GETTER
 
 private:
-    bool left_, right_, shoot_, pause_, quit_, enter_;
+    // マクロでメンバ変数を生成（= false で初期化）
+    #define DECLARE_MEMBER(CamelCase, snake_case) bool snake_case##_ = false;
+    KEY_BUTTONS(DECLARE_MEMBER)
+    #undef DECLARE_MEMBER
 };
+
+#undef KEY_BUTTONS
