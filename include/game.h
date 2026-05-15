@@ -4,6 +4,8 @@
 #include "renderer.h"
 #include "player.h"
 #include "input_handler.h"
+#include "bullet.h"
+#include <vector>
 
 enum class GameState {
     Title,
@@ -32,4 +34,5 @@ private:
     Renderer      renderer_;
     Player        player_;
     InputHandler  input_;
+    std::vector<Bullet> bullets_;
 };

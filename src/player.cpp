@@ -17,8 +17,13 @@ void Player::moveRight() {
 }
 
 bool Player::shoot() {
-    // TODO: 弾の実装
-    return false;
+    if (hasBullet_) return false;  // すでに弾が飛んでいる
+    hasBullet_ = true;
+    return true;
+}
+
+void Player::clearBullet() {
+    hasBullet_ = false;
 }
 
 void Player::update() {

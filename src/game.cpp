@@ -1,6 +1,7 @@
 #include "game.h"
 #include "config.h"
 #include <windows.h>
+#include <algorithm>
 
 Game::Game()
     : state_(GameState::Playing), level_(1), running_(true) {}
@@ -28,10 +29,34 @@ void Game::processInput() {
     if (input_.isQuit())  { running_ = false; return; }
     if (input_.isLeft())  player_.moveLeft();
     if (input_.isRight()) player_.moveRight();
+    if (input_.isShoot()) {
+        if (player_.shoot()) {
+            // プレイヤーの中心座標から発射
+            bullets_.emplace_back(player_.x(), player_.y() - 1, BulletOwner::Player);
+        }
+    }
 }
 
 void Game::update() {
     player_.update();
+
+    // 弾を更新し、画面外に出た弾を削除
+    for (auto& b : bullets_) {
+        b.update();
+    }
+    // 非アクティブな弾を除去し、プレイヤー弾フラグもリセット
+    bullets_.erase(
+        std::remove_if(bullets_.begin(), bullets_.end(),
+            [this](const Bullet& b) {
+                if (!b.isActive()) {
+                    if (b.owner() == BulletOwner::Player)
+                        player_.clearBullet();
+                    return true;
+                }
+                return false;
+            }),
+        bullets_.end()
+    );
 }
 
 void Game::render() {
@@ -49,7 +74,11 @@ void Game::render() {
     }
 
     // ヒント表示
-    renderer_.drawString(2, 1, "INVADER GAME  [<][>]:Move  [Q/Esc]:Quit");
+    renderer_.drawString(2, 1, "INVADER GAME  [<][>]:Move  [Space]:Shot  [Q/Esc]:Quit");
+
+    // 弾を描画
+    for (const auto& b : bullets_)
+        b.render(renderer_);
 
     // プレイヤー描画
     player_.render(renderer_);

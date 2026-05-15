@@ -1,4 +1,5 @@
 #pragma once
+#include <windows.h>
 
 // ダブルバッファリングを用いた描画管理
 class Renderer {
@@ -15,5 +16,14 @@ public:
     void showCursor();
 
 private:
+    // コンソール設定を保存
+    COORD originalBufferSize;
+    SMALL_RECT originalWindowRect;
+    CONSOLE_CURSOR_INFO originalCursorInfo;
+    WORD originalAttributes;
+    
+    void fullClear();          // コンソール全体をクリア（起動時）
+    void clearGameArea();      // ゲーム描画領域を消去（終了時）
+    void restoreConsoleSettings();
     // TODO: ダブルバッファの実装
 };

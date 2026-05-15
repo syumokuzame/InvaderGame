@@ -23,6 +23,7 @@ public:
 
     void loseLife();
     void reset();
+    void clearBullet();   // 弾が画面から消えたときに呼ぶ
 
 private:
     int  x_;

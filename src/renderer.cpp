@@ -9,6 +9,17 @@ static CHAR_INFO s_backBuf[Config::FIELD_HEIGHT * Config::FIELD_WIDTH];
 Renderer::Renderer() {
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
+    // 元のコンソール設定を保存
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(hOut, &csbi);
+    originalBufferSize = csbi.dwSize;
+    originalWindowRect = csbi.srWindow;
+    originalAttributes = csbi.wAttributes;
+    GetConsoleCursorInfo(hOut, &originalCursorInfo);
+
+    // ターミナル全体をクリア
+    fullClear();
+
     // スクリーンバッファサイズをフィールドに合わせる
     COORD bufSize = { Config::FIELD_WIDTH, Config::FIELD_HEIGHT };
     SetConsoleScreenBufferSize(hOut, bufSize);
@@ -24,7 +35,36 @@ Renderer::Renderer() {
 }
 
 Renderer::~Renderer() {
+    clearGameArea();
     showCursor();
+    restoreConsoleSettings();
+}
+
+void Renderer::fullClear() {
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(hOut, &csbi);
+    DWORD size = csbi.dwSize.X * csbi.dwSize.Y;
+    COORD origin = { 0, 0 };
+    DWORD written;
+    FillConsoleOutputCharacterA(hOut, ' ', size, origin, &written);
+    FillConsoleOutputAttribute(hOut, csbi.wAttributes, size, origin, &written);
+    SetConsoleCursorPosition(hOut, origin);
+}
+
+void Renderer::clearGameArea() {
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD size = Config::FIELD_WIDTH * Config::FIELD_HEIGHT;
+    COORD origin = { 0, 0 };
+    DWORD written;
+    FillConsoleOutputCharacterA(hOut, ' ', size, origin, &written);
+    FillConsoleOutputAttribute(hOut, originalAttributes, size, origin, &written);
+    SetConsoleCursorPosition(hOut, origin);
+}
+
+void Renderer::restoreConsoleSettings() {
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleCursorInfo(hOut, &originalCursorInfo);
 }
 
 void Renderer::clear() {
