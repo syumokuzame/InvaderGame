@@ -11,8 +11,8 @@ Bullet::Bullet(int x, int y, BulletOwner owner)
 void Bullet::update() {
     if (!active_) return;
     y_ += dy_;
-    // フィールド枠に到達したら無効化
-    if (y_ <= 0 || y_ >= Config::FIELD_HEIGHT - 1)
+    // フィールド枠（上枠=UI_HEIGHT+1、下枠=FIELD_HEIGHT-1）に到達したら無効化
+    if (y_ <= Config::UI_HEIGHT || y_ >= Config::FIELD_HEIGHT - 1)
         active_ = false;
 }
 

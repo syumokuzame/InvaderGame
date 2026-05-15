@@ -14,7 +14,7 @@ public:
     bool isAlive()     const { return alive_; }
     bool isSpawning()  const { return spawnFrame_ < SPAWN_FRAMES; }  // スポーン中？
     bool isActive()    const { return spawnFrame_ < SPAWN_FRAMES || alive_; }  // スポーン中または生存中
-    bool isFullyDead() const { return !alive_ && deathTimer_ <= 0; }
+    bool isFullyDead() const { return spawnFrame_ >= SPAWN_FRAMES && !alive_ && deathTimer_ <= 0; }
     int  scoreValue()  const;  // 行によってスコアが異なる
 
     void kill();
