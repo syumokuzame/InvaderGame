@@ -83,7 +83,7 @@
   - 敵配置がUI領域を避けて正しく配置される
   - ビルド成功、git push 完了
 
-### [2026-05-15] 敵撃破スコア加算・Clear表示・敵リスポーン（計画中）
+### [2026-05-15] 敵撃破スコア加算・Clear表示・敵リスポーン
 - **対象ファイル**: `include/invader_swarm.h`, `src/invader_swarm.cpp`, `include/game.h`, `src/game.cpp`, `include/renderer.h`, `src/renderer.cpp`
 - **仕様**:
   - 敵を1体倒すたびに10点加算（ScoreManager::addScore()）
@@ -92,12 +92,20 @@
   - 1秒（60フレーム）待機
   - その後、敵をすべてリスポーン（InvaderSwarm::reset()）し GameState を Playing に戻す
 - **実装内容**:
-  - `InvaderSwarm` に `countAlive()` メソッド追加（生存敵数カウント）
-  - `Game` に敵全滅カウンター `clearCounter_` を追加
-  - `Game::update()` で敵全滅判定
-  - `Game::render()` で Clear メッセージ表示
-  - `Game::update()` で clearCounter_ でリスポーン タイミング制御
+  - `Game` に `clearCounter_`（Clear状態カウンター）と `lastAliveCount_`（前フレームの生存敵数）メンバを追加
+  - `Game::update()` で：
+    - Playing 状態時は通常ゲーム処理
+    - 生存敵数を毎フレーム確認し、撃破された敵数 × 10点をスコア加算
+    - 敵が全滅すれば GameClear 状態へ
+    - Clear 状態で 60フレーム待機後、敵をリスポーン＆Playing 状態へ復帰
+  - `Game::render()` で GameClear 状態時に「CLEAR!」メッセージを画面中央に表示
+  - `Game` コンストラクタで初期敵数をカウント
+- **動作**: 
+  - 敵撃破時にスコア加算確認済み
+  - 全敵撃破で「CLEAR!」表示を確認済み
+  - 1秒後に敵がリスポーン確認済み
+  - ビルド成功、git push 完了
 
 ---
 
-*計画作成済み*
+*記録完了*
