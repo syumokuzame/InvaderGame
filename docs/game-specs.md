@@ -158,6 +158,19 @@
 - **動作**: 
   - ゲーム開始時に敵が画面に見えない状態から段階的に出現
   - リスポーン時も同じスポーンアニメーション表示
+
+### [2026-05-16] デバッグ機能：A キーで全敵削除
+- **対象ファイル**: `include/input_handler.h`, `src/input_handler.cpp`, `include/game.h`, `src/game.cpp`
+- **内容**:
+  - `KEY_BUTTONS` X マクロに `X(DebugKillAll, debugKillAll)` を追加
+  - `input_handler.cpp` で `'A'` キー（ASCII 0x41）の状態を `debugKillAll_` に設定
+  - `Game` クラスに `debugKillAllInvaders()` プライベートメソッドを追加
+  - `Game::processInput()` で A キー検出時に `debugKillAllInvaders()` を呼び出す
+- **動作**:
+  - A キー押下で全敵に対して `kill()` を呼び出し
+  - スポーン中の敵も、生存敵も、一度に削除アニメーション開始
+  - ゲーム開発時のテスト・デバッグ用機能
+- **ビルド・デプロイ**: 成功、git push 完了
   - スポーン中の敵には当たり判定なし
   - スポーン中に敵全滅と判定されない
   - ビルド成功、git push 完了
