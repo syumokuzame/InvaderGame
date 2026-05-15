@@ -1,5 +1,5 @@
 #include "input_handler.h"
-#include <conio.h>
+#include <windows.h>
 
 // X マクロでキーボタン情報を再定義
 #define KEY_BUTTONS(X) \
@@ -19,24 +19,15 @@ void InputHandler::poll() {
     KEY_BUTTONS(RESET_MEMBER)
     #undef RESET_MEMBER
 
-    while (_kbhit()) {
-        int ch = _getch();
-
-        // 拡張キー（方向キー等）は 0 または 0xE0 のプレフィックス
-        if (ch == 0 || ch == 0xE0) {
-            int ext = _getch();
-            if (ext == 75) left_  = true;  // 左矢印
-            if (ext == 77) right_ = true;  // 右矢印
-        } else {
-            switch (ch) {
-                case ' ':            shoot_ = true; break;
-                case 'p': case 'P':  pause_ = true; break;
-                case 'q': case 'Q':  quit_  = true; break;
-                case 27:             quit_  = true; break;  // Esc
-                case '\r':           enter_ = true; break;
-            }
-        }
-    }
+    // GetAsyncKeyState() で各キーの状態を確認
+    // 戻り値の最上位ビットが 1 の場合、キーが押されている
+    if (GetAsyncKeyState(VK_LEFT)  & 0x8000) left_  = true;
+    if (GetAsyncKeyState(VK_RIGHT) & 0x8000) right_ = true;
+    if (GetAsyncKeyState(VK_SPACE) & 0x8000) shoot_ = true;
+    if (GetAsyncKeyState('P')      & 0x8000) pause_ = true;
+    if (GetAsyncKeyState('Q')      & 0x8000) quit_  = true;
+    if (GetAsyncKeyState(VK_ESCAPE)& 0x8000) quit_  = true;
+    if (GetAsyncKeyState(VK_RETURN)& 0x8000) enter_ = true;
 }
 
 // マクロで各種ゲッター関数を生成
