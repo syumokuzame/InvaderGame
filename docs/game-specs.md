@@ -83,6 +83,21 @@
   - 敵配置がUI領域を避けて正しく配置される
   - ビルド成功、git push 完了
 
+### [2026-05-15] 敵撃破スコア加算・Clear表示・敵リスポーン（計画中）
+- **対象ファイル**: `include/invader_swarm.h`, `src/invader_swarm.cpp`, `include/game.h`, `src/game.cpp`, `include/renderer.h`, `src/renderer.cpp`
+- **仕様**:
+  - 敵を1体倒すたびに10点加算（ScoreManager::addScore()）
+  - 敵がすべて消滅した場合、GameState を GameClear に変更
+  - 画面中央に「CLEAR!」と表示
+  - 1秒（60フレーム）待機
+  - その後、敵をすべてリスポーン（InvaderSwarm::reset()）し GameState を Playing に戻す
+- **実装内容**:
+  - `InvaderSwarm` に `countAlive()` メソッド追加（生存敵数カウント）
+  - `Game` に敵全滅カウンター `clearCounter_` を追加
+  - `Game::update()` で敵全滅判定
+  - `Game::render()` で Clear メッセージ表示
+  - `Game::update()` で clearCounter_ でリスポーン タイミング制御
+
 ---
 
-*記録完了*
+*計画作成済み*

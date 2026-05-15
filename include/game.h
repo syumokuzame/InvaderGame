@@ -34,6 +34,8 @@ private:
     int           level_;
     bool          running_;
     std::time_t   gameStartTime_;
+    int           clearCounter_;        // Clear状態の表示フレームカウンター
+    int           lastAliveCount_;      // 前フレームの生存敵数
 
     Renderer      renderer_;
     Player        player_;
