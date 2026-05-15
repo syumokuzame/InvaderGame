@@ -10,6 +10,8 @@ public:
     void clear();           // バックバッファをクリア
     void draw(int x, int y, char ch);   // 指定座標に文字を描画
     void drawString(int x, int y, const char* str);
+    void drawHeader(const char* title, int score, int elapsedSeconds);  // 上部UI描画（1-2行目）
+    void drawInstructions();  // 操作方法表示（2行目）
     void present();         // バックバッファをフロントに転送（描画確定）
 
     void hideCursor();

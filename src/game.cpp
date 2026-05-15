@@ -2,9 +2,12 @@
 #include "config.h"
 #include <windows.h>
 #include <algorithm>
+#include <ctime>
 
 Game::Game()
-    : state_(GameState::Playing), level_(1), running_(true) {}
+    : state_(GameState::Playing), level_(1), running_(true) {
+    gameStartTime_ = std::time(nullptr);
+}
 
 Game::~Game() = default;
 
@@ -66,19 +69,22 @@ void Game::update() {
 void Game::render() {
     renderer_.clear();
 
+    // 上部UI描画（1-2行目）
+    std::time_t now = std::time(nullptr);
+    int elapsedSeconds = static_cast<int>(now - gameStartTime_);
+    renderer_.drawHeader("InvaderGame", scoreManager_.score(), elapsedSeconds);
+    renderer_.drawInstructions();
+
     // フィールド枠（上下）
     for (int x = 0; x < Config::FIELD_WIDTH; ++x) {
-        renderer_.draw(x, 0, '=');
+        renderer_.draw(x, 2, '=');
         renderer_.draw(x, Config::FIELD_HEIGHT - 1, '=');
     }
     // フィールド枠（左右）
-    for (int y = 1; y < Config::FIELD_HEIGHT - 1; ++y) {
+    for (int y = 3; y < Config::FIELD_HEIGHT - 1; ++y) {
         renderer_.draw(0, y, '|');
         renderer_.draw(Config::FIELD_WIDTH - 1, y, '|');
     }
-
-    // ヒント表示
-    renderer_.drawString(2, 1, "INVADER GAME  [<][>]:Move  [Space]:Shot  [Q/Esc]:Quit");
 
     // 弾を描画
     for (const auto& b : bullets_)

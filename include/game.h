@@ -6,7 +6,9 @@
 #include "input_handler.h"
 #include "bullet.h"
 #include "invader_swarm.h"
+#include "score_manager.h"
 #include <vector>
+#include <ctime>
 
 enum class GameState {
     Title,
@@ -31,10 +33,12 @@ private:
     GameState     state_;
     int           level_;
     bool          running_;
+    std::time_t   gameStartTime_;
 
     Renderer      renderer_;
     Player        player_;
     InputHandler  input_;
+    ScoreManager  scoreManager_;
     std::vector<Bullet> bullets_;
     InvaderSwarm  swarm_;
 };

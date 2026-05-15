@@ -36,6 +36,17 @@ cmd /c "c:\Users\7800X3D\InvaderGame\.vscode\build.bat" 2>&1
 
 push が失敗した場合（ネットワークエラー等）はユーザーにエラー内容を報告する。
 
+## 手動 Push 指示（「pushして」）
+
+ユーザーが「pushして」「push して」「プッシュして」と指示した場合は、
+ビルドの有無にかかわらず**確認なしに**以下を即座に実行する:
+
+1. `git -C "c:\Users\7800X3D\InvaderGame" add -A`
+2. 変更内容を把握してコミットメッセージを生成する（形式: `feat: <内容>` または `chore: <内容>`）
+3. `git -C "c:\Users\7800X3D\InvaderGame" commit -m "<生成したメッセージ>"`
+   - 変更がない場合はスキップしてよい
+4. `git -C "c:\Users\7800X3D\InvaderGame" push origin HEAD`
+
 ## ビルドエラー修正フロー
 
 1. ターミナル出力からエラーメッセージを読み取る（`error:` / `warning:` を含む行）

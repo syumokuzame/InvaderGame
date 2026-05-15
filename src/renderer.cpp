@@ -2,6 +2,7 @@
 #include "..\include\config.h"
 #include <windows.h>
 #include <cstring>
+#include <cstdio>
 
 // バックバッファ（文字 + 属性）
 static CHAR_INFO s_backBuf[Config::FIELD_HEIGHT * Config::FIELD_WIDTH];
@@ -105,4 +106,30 @@ void Renderer::showCursor() {
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO ci = { 1, TRUE };
     SetConsoleCursorInfo(hOut, &ci);
+}
+
+void Renderer::drawHeader(const char* title, int score, int elapsedSeconds) {
+    // 1行目：タイトル（左端）、スコア（右側中央部）、時間（右端）
+    drawString(1, 0, title);
+
+    // スコア表示
+    char scoreBuf[32];
+    sprintf_s(scoreBuf, sizeof(scoreBuf), "Score: %d", score);
+    int scoreX = Config::FIELD_WIDTH - 30;
+    drawString(scoreX, 0, scoreBuf);
+
+    // 時間表示（右端）
+    char timeBuf[16];
+    int minutes = elapsedSeconds / 60;
+    int seconds = elapsedSeconds % 60;
+    sprintf_s(timeBuf, sizeof(timeBuf), "%02d:%02d", minutes, seconds);
+    int timeX = Config::FIELD_WIDTH - 8;
+    drawString(timeX, 0, timeBuf);
+}
+
+void Renderer::drawInstructions() {
+    // 2行目：操作方法表示
+    const char* instructions = "LEFT/RIGHT: Move  SPACE: Shoot  P: Pause  Q: Quit";
+    int instrX = 2;
+    drawString(instrX, 1, instructions);
 }
