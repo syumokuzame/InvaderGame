@@ -106,6 +106,28 @@
   - 1秒後に敵がリスポーン確認済み
   - ビルド成功、git push 完了
 
+### [2026-05-15] 入力ハンドラー修正（GetAsyncKeyState 改善）
+- **対象ファイル**: `src/input_handler.cpp`
+- **問題**:
+  - `_kbhit()` / `_getch()` を使用した入力検出が不安定
+  - プレイヤーキー（左右）が反応しない
+  - 弾発射キー（スペース）が反応しない
+- **修正内容**:
+  - `#include <conio.h>` から `#include <windows.h>` に変更
+  - `_kbhit()` / `_getch()` から Windows API の `GetAsyncKeyState()` に変更
+  - キーコード判定を仮想キーコード（VK_LEFT, VK_RIGHT, VK_SPACE 等）に統一
+  - 各キーの状態を戻り値の最上位ビット（0x8000）で判定
+- **実装の詳細**:
+  - VK_LEFT（左矢印キー） → left_
+  - VK_RIGHT（右矢印キー） → right_
+  - VK_SPACE（スペースキー） → shoot_
+  - VK_ESCAPE（Escキー） → quit_
+  - その他は従来どおり
+- **動作**: 
+  - 左右キーでプレイヤー移動が正常に動作
+  - スペースキーで弾発射が正常に動作
+  - ビルド成功、git push 完了
+
 ---
 
 *記録完了*
