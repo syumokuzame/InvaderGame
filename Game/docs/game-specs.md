@@ -42,3 +42,14 @@
 ---
 
 *ドキュメント整理完了 [2026-05-16]*
+
+---
+
+### [2026-05-16] シーン切り替え機能（TitleScene 追加）
+- **対象ファイル**: `Engine/include/SceneBase.h`, `Engine/include/FrameWork.h`, `Engine/src/FrameWork.cpp`, `Game/include/title_scene.h`, `Game/src/title_scene.cpp`, `Game/src/game_scene.cpp`, `Game/src/main.cpp`
+- **内容**:
+  - `engine::SceneBase` に `changeScene(SceneBase*)` / `takeNextScene()` を追加し、派生シーンがシーン切り替えをリクエストできる仕組みを実装
+  - `engine::FrameWork` がシーンの所有権を持つよう変更（デストラクタで `delete`）、`run()` ループ内で `takeNextScene()` を毎フレームチェックし、非 nullptr なら旧シーンを `delete` して新シーンに切り替える
+  - `game::TitleScene` を新規作成。ENTER でゲームシーンへ遷移、Q/ESC でアプリ終了。テキストの点滅エフェクト付き
+  - `game::GameScene` の Q/ESC キーを `quit()` から `changeScene(new TitleScene())` に変更（ゲーム中にタイトルへ戻れる）
+  - `main.cpp` を `new game::TitleScene()` からの起動に変更

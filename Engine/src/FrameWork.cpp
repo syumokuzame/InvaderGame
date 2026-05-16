@@ -22,7 +22,7 @@ void FrameWork::run() {
         if (next) {
             delete scene_;
             scene_ = next;
-            continue;
+            // 新シーンも同じフレームで描画する（continue しない）
         }
 
         if (!scene_->isRunning()) break;
