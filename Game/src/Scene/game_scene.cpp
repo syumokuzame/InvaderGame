@@ -26,7 +26,7 @@ void GameScene::processInput() {
         return;
     }
 
-    if (input_.isQuit())  { changeScene(new TitleScene()); return; }
+    if (input_.isQuit())  { changeScene(engine::SceneType::Title); return; }
     if (input_.isLeft())  player_.moveLeft();
     if (input_.isRight()) player_.moveRight();
     if (input_.isShoot()) {

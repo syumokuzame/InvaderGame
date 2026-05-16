@@ -5,7 +5,7 @@
 namespace engine {
 
 FrameWork::FrameWork(SceneBase* scene, int frameMs)
-    : scene_(scene), frameMs_(frameMs) {}
+    : scene_(scene), frameMs_(frameMs), sceneFactory_(nullptr) {}
 
 FrameWork::~FrameWork() {
     delete scene_;
@@ -17,12 +17,20 @@ void FrameWork::run() {
 
         scene_->calc();
 
-        // シーン切り替えチェック（isRunning より優先）
-        SceneBase* next = scene_->takeNextScene();
-        if (next) {
+        // シーン切り替えチェック（Framework側でシーンを生成）
+        if (scene_->hasNextScene()) {
+            if (!sceneFactory_) {
+                // factory が登録されていない場合はエラー
+                break;
+            }
+            
+            SceneType nextType = scene_->getNextSceneType();
+            SceneBase* nextScene = sceneFactory_(nextType);
+            
             delete scene_;
-            scene_ = next;
-            // 新シーンも同じフレームで描画する（continue しない）
+            scene_ = nextScene;
+            scene_->clearNextScene();  // 新シーンの切り替え要求をリセット
+            continue;
         }
 
         if (!scene_->isRunning()) break;

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "SceneBase.h"
-#include "input_handler.h"
+#include "../../Engine/include/SceneBase.h"
+#include "../input_handler.h"
 
 namespace game {
 

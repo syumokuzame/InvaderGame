@@ -26,7 +26,7 @@ void TitleScene::calc() {
     }
 
     if (input_.isEnter()) {
-        changeScene(new GameScene());
+        changeScene(engine::SceneType::Game);
         return;
     }
 
