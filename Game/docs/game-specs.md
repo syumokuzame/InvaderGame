@@ -199,6 +199,30 @@
   - 敵を倒すまで Clear にならない
   - ビルド成功、git push 完了
 
+### [2026-05-16] プロジェクト構造の再構成 — Engine 層と Game 層の分割
+- **対象ファイル**: プロジェクトルート構造全体、`CMakeLists.txt`
+- **内容**:
+  - ディレクトリ構造を2層に再構成：
+    ```
+    Root
+    ├── Engine/          (ゲームエンジン層 — 今後のコア機能)
+    └── Game/            (ゲームアプリ層 — InvaderGame 実装)
+        ├── include/
+        ├── src/
+        ├── docs/
+        └── save/
+    ```
+  - 既存の `include/`, `src/`, `docs/`, `save/` をすべて `Game/` 配下に移動
+  - `CMakeLists.txt` を新構造に対応：
+    - `file(GLOB_RECURSE SOURCES "Game/src/*.cpp")` に変更
+    - `target_include_directories(InvaderGame PRIVATE Game/include)` に変更
+  - ビルド成功、出力ファイル `build/InvaderGame.exe` は従来通り
+- **仕様**:
+  - Engine 層は将来の拡張用（グラフィックス API、物理エンジン等）
+  - Game 層は現在のすべての実装を含む（プレイヤー、敵、弾、UI等）
+  - 層間の依存関係は今後整理予定
+- **ビルド・デプロイ**: 成功、git push 完了
+
 ### [2026-05-16] プレイヤーアニメーション実装（射撃＆移動表現）
 - **対象ファイル**: `include/player.h`, `src/player.cpp`
 - **仕様**:
