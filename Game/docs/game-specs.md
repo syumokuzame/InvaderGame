@@ -248,6 +248,26 @@
   - 移動するとプレイヤーが傾いた形状で移動感を表現
   - ビルド・デプロイ：成功、git push 完了
 
+### [2026-05-16] ActorBase メソッド名変更 — update → calc、render → draw
+- **対象ファイル**: 
+  - `Engine/include/ActorBase.h`
+  - `Engine/src/ActorBase.cpp`
+  - `Game/include/actor.h`
+  - `Game/include/player.h`, `src/player.cpp`
+  - `Game/include/bullet.h`, `src/bullet.cpp`
+  - `Game/include/invader.h`, `src/invader.cpp`
+  - `Game/include/invader_swarm.h`, `src/invader_swarm.cpp`
+  - `Game/src/game.cpp`
+- **内容**: 
+  - `ActorBase` の仮想メソッド：`update()` → `calc()`、`render()` → `draw()`
+  - `Player`、`Bullet`、`Invader` の実装メソッドも同じく変更
+  - `InvaderSwarm::render()` → `InvaderSwarm::draw()`
+  - `Game::update()` / `Game::render()` 内の呼び出しをすべて更新
+- **仕様変更**：ゲーム層の命名規則を統一
+  - 計算処理は `calc()` で呼ばれる
+  - 描画処理は `draw()` で呼ばれる
+- **ビルド**：成功、git push 完了
+
 ---
 
 *記録完了*
