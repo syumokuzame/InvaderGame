@@ -74,14 +74,19 @@ void Player::render(Renderer& renderer) const {
     else if (move_frame_ > 0) {
         if (last_direction_ == -1) {
             // 左移動時：左に傾く表現
-            renderer.draw(x_ - 1, y_, '\\');
-            renderer.draw(x_,     y_, '^');
-            renderer.draw(x_ + 1, y_, '>');
-        } else if (last_direction_ == 1) {
-            // 右移動時：右に傾く表現
             renderer.draw(x_ - 1, y_, '<');
             renderer.draw(x_,     y_, '^');
-            renderer.draw(x_ + 1, y_, '/');
+            renderer.draw(x_ + 1, y_, '>');
+            renderer.draw(x_ + 2, y_, '>');
+            renderer.draw(x_ + 3, y_, '.');
+        } else if (last_direction_ == 1) {
+            // 右移動時：右に傾く表現
+            renderer.draw(x_ - 3, y_, '.');
+            renderer.draw(x_ - 2, y_, '<');
+            renderer.draw(x_ - 1, y_, '<');
+            renderer.draw(x_,     y_, '^');
+            renderer.draw(x_ + 1, y_, '>');
+
         }
     }
     // 通常状態
