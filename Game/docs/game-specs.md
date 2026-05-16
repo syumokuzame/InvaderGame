@@ -1,303 +1,44 @@
-# ゲーム仕様記録 — InvaderGame
+﻿# ゲーム仕様記録 — InvaderGame
 
-プロジェクト要件定義: [docs/requirements.md](requirements.md)
-
-各実装指示の完了後、エージェントが自動追記します。
+プロジェクト要件定義: [requirements.md](requirements.md)
 
 ---
 
-## 実装ログ
+## 仕様ドキュメント一覧
 
-### [2026-05-15] 弾発射システムの実装
-- **対象ファイル**: `include/bullet.h`, `src/bullet.cpp`, `include/player.h`, `src/player.cpp`, `include/game.h`, `src/game.cpp`
-- **内容**: 
-  - `Bullet` クラスを実装（上方向に移動、フィールド外で自動無効化）
-  - `Player::shoot()` を実装（同時1発制限）
-  - `Game` で弾の管理・更新・当たり判定・描画を統合
-  - スペースキーで弾発射
-- **仕様**: 敵機なし状態で弾の動作確認済み
+実装は以下のカテゴリ別に分割・管理されています。
+各実装指示の完了後、エージェントが該当ドキュメントに自動追記します。
 
-### [2026-05-15] InputHandler の X マクロ化
-- **対象ファイル**: `include/input_handler.h`, `src/input_handler.cpp`
-- **内容**: 
-  - 6 つのキー入力（左、右、発射、ポーズ、終了、決定）を `KEY_BUTTONS` X マクロで統一
-  - メンバ変数、ゲッター関数、リセット処理が自動生成されるように
-  - 新しいキー入力追加時は `KEY_BUTTONS` マクロ定義のみ変更で OK
-- **保守性向上**: 関数・変数の重複定義排除
+### [プレイヤー機能](specs/player.md)
+- 弾発射システムの実装
+- プレイヤーアニメーション実装（射撃＆移動表現）
 
-### [2026-05-15] 敵機システムの実装
-- **対象ファイル**: `include/invader.h`, `src/invader.cpp`, `include/invader_swarm.h`, `src/invader_swarm.cpp`, `include/game.h`, `src/game.cpp`
-- **内容**: 
-  - `Invader` クラス：各敵機の状態・描画・消滅アニメ管理
-  - `InvaderSwarm` クラス：敵機群の配置・更新・当たり判定
-  - 敵機キャラ：上段M(30pt)、中段W(20pt)、下段V(10pt)
-  - 消滅アニメ：12フレーム（* → + → . → 消滅）
-  - `FIELD_WIDTH` と `FIELD_HEIGHT` に応じた動的配置
-- **仕様**: 敵機5列×3行（計15体）がフィールド内に均等配置、プレイヤー弾での消滅確認済み
+### [敵機機能](specs/invader.md)
+- 敵機システムの実装
+- 敵機の4マス表現と動的個数決定
+- 敵機の移動機能実装
+- 敵スポーンアニメーション実装
+- 敵全滅判定バグ修正
+- 敵撃破スコア加算・Clear表示・敵リスポーン
 
-### [2026-05-15] 敵機の4マス表現と動的個数決定
-- **対象ファイル**: `src/invader.cpp`, `src/invader_swarm.cpp`
-- **内容**: 
-  - 敵機を1マスから4マス（テトリスのTミノ形）に変更
-  - 敵の形：上行 `***` （左-中-右）、下行 `*` （中央）
-  - フィールドサイズから敵の列数・行数を自動計算
-  - 敵1体サイズ：幅3、高さ2；間隔1で配置
-  - 列数：3～10列の範囲（フィールド幅依存）
-  - 行数：2～3行の範囲（フィールド高さ依存）
-  - 当たり判定をTミノの4マス全てに対応
-- **仕様変更**: `Config::INVADER_COLS` と `Config::INVADER_ROWS` は使用しなくなった（敵数は動的計算）
+### [入力機能](specs/input.md)
+- InputHandler の X マクロ化
+- 入力ハンドラー修正（GetAsyncKeyState 改善）
 
-### [2026-05-15] 敵機の移動機能実装
-- **対象ファイル**: `src/invader.cpp`, `src/invader_swarm.cpp`
-- **内容**: 
-  - 敵機の向きを逆さまTミノから上向きTミノに修正（上行***、下行*）
-  - 敵機集団の左右移動を実装
-  - 敵機の最左・最右の座標から フィールド枠（左壁・右壁）との当たり判定
-  - 枠に到達したら移動方向を反転
-  - 全敵機が統一して移動（毎 speed フレーム毎に1マス移動）
-  - 移動速度: 20フレーム間隔（60FPS時、約0.33秒ごと）
-- **動作**: 敵機集団が左右に繰り返し移動、端で折り返す
+### [UI・スコア機能](specs/ui.md)
+- 上部UI実装
 
-### [2026-05-15] 上部UI実装
-- **対象ファイル**: `include/renderer.h`, `src/renderer.cpp`, `include/game.h`, `src/game.cpp`, `src/score_manager.cpp`, `include/config.h`, `src/invader_swarm.cpp`
-- **仕様**:
-  - 1行目（Y=0）：
-    - 左端（X=1）: タイトル "InvaderGame"
-    - 中央右（X=50）: スコア表示（例："Score: 12345"）
-    - 右端（X=72）: 経過時間表示（例："00:45"）
-  - 2行目（Y=1）：
-    - 左側（X=2）: 操作方法表示（"LEFT/RIGHT: Move  SPACE: Shoot  P: Pause  Q: Quit"）
-  - ゲームエリア: Y=2（上枠）から Y=24（下枠）に変更
-  - `Config::UI_HEIGHT = 2` を定数として追加
-  - 敵の配置マージンを `UI_HEIGHT` に対応（敵の開始Y座標 = UI_HEIGHT + 2）
-- **実装内容**:
-  - `Game` にゲーム開始時刻 `gameStartTime_` メンバを追加
-  - `ScoreManager` クラスを初期化（スコア管理・ハイスコア保存/読み込み）
-  - `Renderer::drawHeader()` でタイトル・スコア・時間を描画
-  - `Renderer::drawInstructions()` で操作方法を描画
-  - `Game::render()` で上部2行のUI描画と、ゲームエリア（Y=2以下）のメイン表示を統合
-  - `src/score_manager.cpp` を実装（ハイスコア管理、ファイル I/O）
-  - `invader_swarm.cpp` で敵の配置マージンを `UI_HEIGHT` に対応
-- **動作**: 
-  - UI表示確認済み、スコア・時間は毎フレーム更新
-  - 敵配置がUI領域を避けて正しく配置される
-  - ビルド成功、git push 完了
+### [アーキテクチャ](specs/architecture.md)
+- プロジェクト構造の再構成 — Engine 層と Game 層の分割
+- ActorBase メソッド名変更 — update → calc、render → draw
+- FrameWork / SceneBase / GameScene 導入 — Engine/Game 層分離完成
 
-### [2026-05-15] 敵撃破スコア加算・Clear表示・敵リスポーン
-- **対象ファイル**: `include/invader_swarm.h`, `src/invader_swarm.cpp`, `include/game.h`, `src/game.cpp`, `include/renderer.h`, `src/renderer.cpp`
-- **仕様**:
-  - 敵を1体倒すたびに10点加算（ScoreManager::addScore()）
-  - 敵がすべて消滅した場合、GameState を GameClear に変更
-  - 画面中央に「CLEAR!」と表示
-  - 1秒（60フレーム）待機
-  - その後、敵をすべてリスポーン（InvaderSwarm::reset()）し GameState を Playing に戻す
-- **実装内容**:
-  - `Game` に `clearCounter_`（Clear状態カウンター）と `lastAliveCount_`（前フレームの生存敵数）メンバを追加
-  - `Game::update()` で：
-    - Playing 状態時は通常ゲーム処理
-    - 生存敵数を毎フレーム確認し、撃破された敵数 × 10点をスコア加算
-    - 敵が全滅すれば GameClear 状態へ
-    - Clear 状態で 60フレーム待機後、敵をリスポーン＆Playing 状態へ復帰
-  - `Game::render()` で GameClear 状態時に「CLEAR!」メッセージを画面中央に表示
-  - `Game` コンストラクタで初期敵数をカウント
-- **動作**: 
-  - 敵撃破時にスコア加算確認済み
-  - 全敵撃破で「CLEAR!」表示を確認済み
-  - 1秒後に敵がリスポーン確認済み
-  - ビルド成功、git push 完了
+### [デバッグ機能](specs/debug.md)
+- デバッグ機能：A キーで全敵削除
 
-### [2026-05-15] 入力ハンドラー修正（GetAsyncKeyState 改善）
-- **対象ファイル**: `src/input_handler.cpp`
-- **問題**:
-  - `_kbhit()` / `_getch()` を使用した入力検出が不安定
-  - プレイヤーキー（左右）が反応しない
-  - 弾発射キー（スペース）が反応しない
-- **修正内容**:
-  - `#include <conio.h>` から `#include <windows.h>` に変更
-  - `_kbhit()` / `_getch()` から Windows API の `GetAsyncKeyState()` に変更
-  - キーコード判定を仮想キーコード（VK_LEFT, VK_RIGHT, VK_SPACE 等）に統一
-  - 各キーの状態を戻り値の最上位ビット（0x8000）で判定
-- **実装の詳細**:
-  - VK_LEFT（左矢印キー） → left_
-  - VK_RIGHT（右矢印キー） → right_
-  - VK_SPACE（スペースキー） → shoot_
-  - VK_ESCAPE（Escキー） → quit_
-  - その他は従来どおり
-- **動作**: 
-  - 左右キーでプレイヤー移動が正常に動作
-  - スペースキーで弾発射が正常に動作
-  - ビルド成功、git push 完了
-
-### [2026-05-15] 敵スポーンアニメーション実装
-- **対象ファイル**: `include/invader.h`, `src/invader.cpp`, `include/game.h`, `src/game.cpp`
-- **仕様**:
-  - ゲーム開始時に敵は画面に出ていない状態で開始
-  - スポーン・リスポーン時にアニメーション表現（4フレーム）：
-    - フレーム 0: `.` (小ドット)
-    - フレーム 1: `o` (中ドット)
-    - フレーム 2: `O` (大ドット)
-    - フレーム 3: `*` (アスタリスク)
-    - フレーム 4 以降: T-ミノ形の敵として正常表示・当たり判定有効
-  - 各敵は個別にスポーンフレームをカウント
-  - リスポーン時も同じアニメーション適用
-- **実装内容**:
-  - `Invader` クラスに `spawnFrame_` メンバ追加（0-3=スポーン中、4以上=スポーン完了）
-  - `Invader::update()` で spawnFrame_ をインクリメント、4に到達時に alive_ を true に設定
-  - `Invader::spawn()` メソッド追加（spawnFrame_ をリセット）
-  - `Invader::isSpawning()` メソッド追加（スポーン中か判定）
-  - `Invader::isActive()` メソッド追加（スポーン中 || 生存中）
-  - `Invader::render()` でスポーン状態に応じた文字を描画
-  - `Invader::isAlive()` がスポーン完了後の敵のみを示すように修正
-  - `InvaderSwarm::allDefeated()` 修正：
-    - スポーン中の敵がいれば false
-    - 生存敵（倒されていない敵）がいれば false
-    - スポーン敵も生存敵もいない場合のみ true
-  - `InvaderSwarm::reset()` で敵を spawn() 状態で生成
-  - `Game::update()` で敵数カウント時に isActive() を使用（スポーン中も含める）
-  - 当たり判定時は isAlive() を使用（スポーン完了敵のみ）
-- **動作**: 
-  - ゲーム開始時に敵が画面に見えない状態から段階的に出現
-  - リスポーン時も同じスポーンアニメーション表示
-
-### [2026-05-16] デバッグ機能：A キーで全敵削除
-- **対象ファイル**: `include/input_handler.h`, `src/input_handler.cpp`, `include/game.h`, `src/game.cpp`
-- **内容**:
-  - `KEY_BUTTONS` X マクロに `X(DebugKillAll, debugKillAll)` を追加
-  - `input_handler.cpp` で `'A'` キー（ASCII 0x41）の状態を `debugKillAll_` に設定
-  - `Game` クラスに `debugKillAllInvaders()` プライベートメソッドを追加
-  - `Game::processInput()` で A キー検出時に `debugKillAllInvaders()` を呼び出す
-- **動作**:
-  - A キー押下で全敵に対して `kill()` を呼び出し
-  - スポーン中の敵も、生存敵も、一度に削除アニメーション開始
-  - ゲーム開発時のテスト・デバッグ用機能
-- **ビルド・デプロイ**: 成功、git push 完了
-
-### [2026-05-16] Clear 状態での弾の動作修正
-- **問題**: Clear 状態で弾を発射すると、弾がその場で静止する
-- **原因**: `Game::update()` で弾の更新処理（`for (auto& b : bullets_) { b.update(); }`）が `if (state_ == GameState::Playing)` ブロック内に閉じ込められていた
-- **修正内容**:
-  - プレイヤーの `update()` をゲーム状態チェックの外に出す
-  - 弾の更新処理 (`bullets_[i].update()`) をゲーム状態チェックの外に出す
-  - インベーダー群の更新処理（`swarm_.update(bullets_)`）は Playing 状態のみで実行
-  - 結果：Clear 状態でもプレイヤーは移動でき、弾も通常通り飛行する
-- **動作**: Clear 表示中に弾を発射すると、弾が画面上部に向かって正常に飛行する
-- **ビルド・デプロイ**: 成功、git push 完了
-  - スポーン中の敵には当たり判定なし
-  - スポーン中に敵全滅と判定されない
-  - ビルド成功、git push 完了
-
-### [2026-05-15] 敵全滅判定バグ修正
-- **問題**: スポーン中の敵が alive_=false のため、allDefeated() が誤判定し、敵が画面に出ていないうちに Clear になってしまった
-- **修正内容**:
-  - `Invader::isSpawning()` メソッド追加
-  - `InvaderSwarm::allDefeated()` ロジック改善：
-    - スポーン中の敵をチェック（isSpawning() = true なら敵が存在）
-    - 生存敵をチェック（isAlive() = true なら敵が存在）
-    - 両方ともなくなった場合のみ全滅と判定
-- **検証**: 
-  - ゲーム開始時に敵が出現するまで待機
-  - 敵を倒すまで Clear にならない
-  - ビルド成功、git push 完了
-
-### [2026-05-16] プロジェクト構造の再構成 — Engine 層と Game 層の分割
-- **対象ファイル**: プロジェクトルート構造全体、`CMakeLists.txt`
-- **内容**:
-  - ディレクトリ構造を2層に再構成：
-    ```
-    Root
-    ├── Engine/          (ゲームエンジン層 — 今後のコア機能)
-    └── Game/            (ゲームアプリ層 — InvaderGame 実装)
-        ├── include/
-        ├── src/
-        ├── docs/
-        └── save/
-    ```
-  - 既存の `include/`, `src/`, `docs/`, `save/` をすべて `Game/` 配下に移動
-  - `CMakeLists.txt` を新構造に対応：
-    - `file(GLOB_RECURSE SOURCES "Game/src/*.cpp")` に変更
-    - `target_include_directories(InvaderGame PRIVATE Game/include)` に変更
-  - ビルド成功、出力ファイル `build/InvaderGame.exe` は従来通り
-- **仕様**:
-  - Engine 層は将来の拡張用（グラフィックス API、物理エンジン等）
-  - Game 層は現在のすべての実装を含む（プレイヤー、敵、弾、UI等）
-  - 層間の依存関係は今後整理予定
-- **ビルド・デプロイ**: 成功、git push 完了
-
-### [2026-05-16] プレイヤーアニメーション実装（射撃＆移動表現）
-- **対象ファイル**: `include/player.h`, `src/player.cpp`
-- **仕様**:
-  - **射撃アニメーション**：弾を発射した直後、プレイヤーの中央が `^` から `|` に変化（射撃中の表現）
-    - 10フレーム間、`<|>` で表示
-    - その後通常の `<^>` に戻る
-  - **移動時表現**：移動開始時にプレイヤーが傾いた形状で移動感を表現
-    - 左移動直後（15フレーム）：`\^>` で表示（左に傾いた表現）
-    - 右移動直後（15フレーム）：`<^/` で表示（右に傾いた表現）
-    - 移動方向が反転したらアニメーションフレームをリセット
-    - 15フレーム後は通常の `<^>` に戻る
-- **実装内容**:
-  - `Player` クラスに新規メンバ：
-    - `shoot_frame_` : 射撃アニメーションフレームカウンター（0=未設定、1-10=射撃中）
-    - `move_frame_` : 移動アニメーションフレームカウンター（0=未設定、1-15=移動中）
-    - `last_direction_` : 最後の移動方向（-1=左、0=停止中、1=右）
-  - `Player::moveLeft()` / `Player::moveRight()` で方向を記録、フレームをリセット
-  - `Player::shoot()` で `shoot_frame_` を 10 に設定
-  - `Player::update()` で各フレームをカウントダウン
-  - `Player::render()` で各フレーム状態に応じたキャラクターを描画
-- **動作**: 
-  - 弾を発射するとプレイヤーが一瞬 `<|>` に変化
-  - 移動するとプレイヤーが傾いた形状で移動感を表現
-  - ビルド・デプロイ：成功、git push 完了
-
-### [2026-05-16] ActorBase メソッド名変更 — update → calc、render → draw
-- **対象ファイル**: 
-  - `Engine/include/ActorBase.h`
-  - `Engine/src/ActorBase.cpp`
-  - `Game/include/actor.h`
-  - `Game/include/player.h`, `src/player.cpp`
-  - `Game/include/bullet.h`, `src/bullet.cpp`
-  - `Game/include/invader.h`, `src/invader.cpp`
-  - `Game/include/invader_swarm.h`, `src/invader_swarm.cpp`
-  - `Game/src/game.cpp`
-- **内容**: 
-  - `ActorBase` の仮想メソッド：`update()` → `calc()`、`render()` → `draw()`
-  - `Player`、`Bullet`、`Invader` の実装メソッドも同じく変更
-  - `InvaderSwarm::render()` → `InvaderSwarm::draw()`
-  - `Game::update()` / `Game::render()` 内の呼び出しをすべて更新
-- **仕様変更**：ゲーム層の命名規則を統一
-  - 計算処理は `calc()` で呼ばれる
-  - 描画処理は `draw()` で呼ばれる
-- **ビルド**：成功、git push 完了
-
-### [2026-05-16] FrameWork / SceneBase / GameScene 導入 — Engine/Game 層分離完成
-- **対象ファイル（新規）**:
-  - `Engine/include/Renderer.h`, `Engine/src/Renderer.cpp`（`game::Renderer` → `engine::Renderer` に移動）
-  - `Engine/include/SceneBase.h`（抽象シーン基底クラス）
-  - `Engine/include/FrameWork.h`, `Engine/src/FrameWork.cpp`（メインループ管理）
-  - `Game/include/game_scene.h`, `Game/src/game_scene.cpp`（ゲームシーン実装）
-- **対象ファイル（削除）**:
-  - `Game/include/renderer.h`, `Game/src/renderer.cpp`（Engine 層に移動）
-  - `Game/include/game.h`, `Game/src/game.cpp`（GameScene に置き換え）
-- **対象ファイル（更新）**:
-  - `Engine/include/ActorBase.h` — `draw(game::Renderer&)` → `draw(engine::Renderer&)`
-  - `Game/include/actor.h`, `player.h`, `bullet.h`, `invader.h`, `invader_swarm.h` — 同上
-  - 各 `.cpp` ファイル — include パス・関数シグネチャ更新
-  - `Game/src/main.cpp` — `FrameWork` + `GameScene` を使う形に書き換え
-- **アーキテクチャ**:
-  ```
-  main() [Game]
-    └─ engine::FrameWork (Renderer を所有、メインループ)
-         └─ game::GameScene : engine::SceneBase
-              ├─ calc()  — 入力処理・物理更新
-              └─ draw(engine::Renderer&) — 全描画
-  ```
-- **仕様**:
-  - `engine::SceneBase` — `calc()` / `draw(Renderer&)` 純粋仮想 + `running_` / `quit()` 管理
-  - `engine::FrameWork` — `Renderer` を値メンバとして所有、フレームレート制御
-  - `game::GameScene` — 元の `Game` クラスのロジックをすべて内包
-  - `Renderer` は Engine 層で定義（`Config` 定数参照のみ Game 依存が残る）
-  - シーン遷移は将来対応予定
-- **ビルド**：成功、git push 完了
+### [バグ修正](specs/bug-fixes.md)
+- Clear 状態での弾の動作修正
 
 ---
 
-*記録完了*
+*ドキュメント整理完了 [2026-05-16]*
