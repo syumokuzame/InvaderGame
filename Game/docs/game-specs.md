@@ -63,3 +63,22 @@
   - `engine::FrameWork::run()` で factory を使ってシーンを生成（new をFramework側で実施）
   - `game::main.cpp` で lambda factory を登録し、SceneType::Title/Game に対応するシーンを生成
   - **メリット**: Engine層がGame層のシーン型情報を持たず、Framework側がシーン生成を統一的に管理
+
+### [2026-05-16] Actor メモリ管理：スタック→ヒープ化
+- **対象ファイル**: 
+  - `Engine/include/SceneBase.h`（新規：updateActors(), drawActors(), clearActors()）
+  - `Engine/src/SceneBase.cpp`（新規作成）
+  - `Engine/include/FrameWork.h`（std::vector<ActorBase*> 追加）
+  - `Engine/src/FrameWork.cpp`（Actor管理の追加）
+  - `Game/include/Scene/game_scene.h`（Player* に変更）
+  - `Game/src/Scene/game_scene.cpp`（コンストラクタで Player* を new）
+  - `Game/include/Scene/title_scene.h`（コンストラクタ引数追加）
+  - `Game/src/Scene/title_scene.cpp`（コンストラクタ実装）
+  - `Game/src/main.cpp`（actors vector を定義・管理）
+- **内容**:
+  - `engine::FrameWork` が `std::vector<ActorBase*> actors_` を保持し、全シーンで共有するメモリプール
+  - `engine::SceneBase` のコンストラクタで `actors_` への参照を受け取る
+  - `SceneBase` に `updateActors()`（全actor→calc()）、`drawActors()`（全actor→draw()）、`clearActors()`（全actor削除）を追加
+  - `game::GameScene` のコンストラクタで `Player* player_ = new Player()` を実施し、`actors_.push_back(player_)`
+  - `game::main.cpp` で actor vector を main スコープで定義、lambda factory でそれを参照
+  - **メリット**: Actor のライフサイクル管理がFramework統一、シーン遷移時の自動クリーンアップ、メモリリーク防止

@@ -18,7 +18,8 @@ enum class GameState {
 
 class GameScene : public engine::SceneBase {
 public:
-    GameScene();
+    explicit GameScene(std::vector<engine::ActorBase*>& actors);
+    ~GameScene() override;
 
     void calc() override;
     void draw(engine::Renderer& renderer) override;
@@ -34,10 +35,10 @@ private:
     int          lastAliveCount_;
     int          inputCooldown_  = 30;  // 入力受け付けクールダウン（フレーム）
 
-    Player       player_;
+    Player*      player_;           // ヒープ確保（actors_管理）
     InputHandler input_;
     ScoreManager scoreManager_;
-    std::vector<Bullet> bullets_;
+    std::vector<Bullet> bullets_;   // ローカル管理
     InvaderSwarm swarm_;
 };
 

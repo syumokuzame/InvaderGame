@@ -7,7 +7,7 @@ namespace game {
 
 class TitleScene : public engine::SceneBase {
 public:
-    TitleScene();
+    explicit TitleScene(std::vector<engine::ActorBase*>& actors);
 
     void calc() override;
     void draw(engine::Renderer& renderer) override;

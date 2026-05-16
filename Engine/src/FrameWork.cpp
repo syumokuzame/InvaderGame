@@ -1,5 +1,6 @@
 #include "FrameWork.h"
 #include "SceneBase.h"
+#include "ActorBase.h"
 #include <windows.h>
 
 namespace engine {
@@ -9,6 +10,9 @@ FrameWork::FrameWork(SceneBase* scene, int frameMs)
 
 FrameWork::~FrameWork() {
     delete scene_;
+    for (auto actor : actors_) {
+        delete actor;
+    }
 }
 
 void FrameWork::run() {
@@ -25,10 +29,16 @@ void FrameWork::run() {
             }
             
             SceneType nextType = scene_->getNextSceneType();
-            SceneBase* nextScene = sceneFactory_(nextType);
             
+            // 現在のシーンの Actor をクリア
+            scene_->clearActors();
+            
+            // 現在のシーンを削除
             delete scene_;
-            scene_ = nextScene;
+            
+            // 新しいシーンを作成（actors_を渡す）
+            scene_ = sceneFactory_(nextType);
+            
             scene_->clearNextScene();  // 新シーンの切り替え要求をリセット
             continue;
         }

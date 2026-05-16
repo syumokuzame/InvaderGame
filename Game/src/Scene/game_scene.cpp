@@ -7,14 +7,23 @@
 
 namespace game {
 
-GameScene::GameScene()
-    : state_(GameState::Playing), level_(1), clearCounter_(0), lastAliveCount_(0) {
+GameScene::GameScene(std::vector<engine::ActorBase*>& actors)
+    : engine::SceneBase(actors),
+      state_(GameState::Playing), level_(1), clearCounter_(0), lastAliveCount_(0) {
+    // Player をヒープ確保して actors_ に追加
+    player_ = new Player();
+    actors_.push_back(player_);
+
     // 前シーンからのキー入力状態をリセット
     input_.poll();
     gameStartTime_ = std::time(nullptr);
     for (const auto& inv : swarm_.invaders()) {
         if (inv.isActive()) lastAliveCount_++;
     }
+}
+
+GameScene::~GameScene() {
+    // clearActors() は親クラスで呼ばれる
 }
 
 void GameScene::processInput() {
@@ -27,11 +36,11 @@ void GameScene::processInput() {
     }
 
     if (input_.isQuit())  { changeScene(engine::SceneType::Title); return; }
-    if (input_.isLeft())  player_.moveLeft();
-    if (input_.isRight()) player_.moveRight();
+    if (input_.isLeft())  player_->moveLeft();
+    if (input_.isRight()) player_->moveRight();
     if (input_.isShoot()) {
-        if (player_.shoot()) {
-            bullets_.emplace_back(player_.x(), player_.y() - 1, BulletOwner::Player);
+        if (player_->shoot()) {
+            bullets_.emplace_back(player_->x(), player_->y() - 1, BulletOwner::Player);
         }
     }
     if (input_.isDebugKillAll()) {
@@ -42,7 +51,7 @@ void GameScene::processInput() {
 void GameScene::calc() {
     processInput();
 
-    player_.calc();
+    player_->calc();
 
     for (auto& b : bullets_) {
         b.calc();
@@ -74,7 +83,7 @@ void GameScene::calc() {
                 if (inv.isActive()) lastAliveCount_++;
             }
             bullets_.clear();
-            player_.clearBullet();
+            player_->clearBullet();
             state_ = GameState::Playing;
         }
     }
@@ -84,7 +93,7 @@ void GameScene::calc() {
             [this](const Bullet& b) {
                 if (!b.isActive()) {
                     if (b.owner() == BulletOwner::Player)
-                        player_.clearBullet();
+                        player_->clearBullet();
                     return true;
                 }
                 return false;
@@ -112,7 +121,7 @@ void GameScene::draw(engine::Renderer& renderer) {
         b.draw(renderer);
 
     swarm_.draw(renderer);
-    player_.draw(renderer);
+    player_->draw(renderer);
 
     if (state_ == GameState::GameClear) {
         int msgY = Config::FIELD_HEIGHT / 2;

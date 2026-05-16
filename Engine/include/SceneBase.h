@@ -1,8 +1,11 @@
 #pragma once
 
+#include <vector>
+
 namespace engine {
 
 class Renderer;
+class ActorBase;
 
 // シーン種別定義（Game層で sceneType を指定するために使用）
 enum class SceneType {
@@ -12,6 +15,8 @@ enum class SceneType {
 
 class SceneBase {
 public:
+    // Actor管理用メモリを参照として受け取る
+    explicit SceneBase(std::vector<ActorBase*>& actors);
     virtual ~SceneBase() = default;
     virtual void calc() = 0;
     virtual void draw(Renderer& renderer) = 0;
@@ -34,6 +39,15 @@ public:
         nextSceneType_ = SceneType::Title;
     }
 
+    // actors の calc() を全て呼び出す
+    void updateActors();
+
+    // actors の draw() を全て呼び出す
+    void drawActors(Renderer& renderer);
+
+    // actors_ をクリア（各actor をdeleteして解放）
+    void clearActors();
+
 protected:
     void quit() { running_ = false; }
 
@@ -42,6 +56,8 @@ protected:
         hasNextScene_ = true;
         nextSceneType_ = type;
     }
+
+    std::vector<ActorBase*>& actors_;
 
 private:
     bool      running_       = true;

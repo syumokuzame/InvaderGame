@@ -3,8 +3,11 @@
 #include "Renderer.h"
 #include "SceneBase.h"
 #include <functional>
+#include <vector>
 
 namespace engine {
+
+class ActorBase;
 
 class FrameWork {
 public:
@@ -25,10 +28,11 @@ public:
     void run();
 
 private:
-    SceneBase*  scene_;
-    Renderer    renderer_;
-    int         frameMs_;
-    SceneFactory sceneFactory_;
+    SceneBase*              scene_;
+    Renderer                renderer_;
+    int                     frameMs_;
+    SceneFactory            sceneFactory_;
+    std::vector<ActorBase*> actors_;  // 全Scene共有のActor管理用メモリ
 };
 
 }  // namespace engine
