@@ -29,5 +29,10 @@ private:
     int  x_;
     int  y_;
     int  lives_;
-    bool hasBullet_;  // 弾が画面上に存在するか
+    bool hasBullet_;      // 弾が画面上に存在するか
+    
+    // アニメーション用
+    int shoot_frame_;     // 射撃アニメーションカウンター (0=無効, 1-10=射撃中)
+    int move_frame_;      // 移動アニメーションカウンター (0=無効, 1-15=移動中)
+    int last_direction_;  // 最後の移動方向 (-1=左, 0=停止, 1=右)
 };
