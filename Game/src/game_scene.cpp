@@ -9,6 +9,8 @@ namespace game {
 
 GameScene::GameScene()
     : state_(GameState::Playing), level_(1), clearCounter_(0), lastAliveCount_(0) {
+    // 前シーンからのキー入力状態をリセット
+    input_.poll();
     gameStartTime_ = std::time(nullptr);
     for (const auto& inv : swarm_.invaders()) {
         if (inv.isActive()) lastAliveCount_++;

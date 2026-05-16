@@ -5,7 +5,10 @@
 
 namespace game {
 
-TitleScene::TitleScene() = default;
+TitleScene::TitleScene() {
+    // 前シーンからのキー入力状態をリセット
+    input_.poll();
+}
 
 void TitleScene::calc() {
     input_.poll();
