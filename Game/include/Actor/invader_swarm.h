@@ -1,6 +1,6 @@
 #pragma once
 
-#include "invader.h"
+#include "Actor/invader.h"
 #include "config.h"
 #include <vector>
 

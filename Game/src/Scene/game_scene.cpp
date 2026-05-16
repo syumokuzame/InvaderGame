@@ -1,6 +1,6 @@
-#include "game_scene.h"
-#include "title_scene.h"
-#include "../../Engine/include/Renderer.h"
+#include "Scene/game_scene.h"
+#include "Scene/title_scene.h"
+#include "Renderer.h"
 #include "config.h"
 #include <algorithm>
 #include <ctime>

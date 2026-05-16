@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Engine/include/SceneBase.h"
+#include "SceneBase.h"
 #include "input_handler.h"
 
 namespace game {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Engine/include/ActorBase.h"
+#include "ActorBase.h"
 
 namespace game {
 

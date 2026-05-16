@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../Engine/include/SceneBase.h"
-#include "player.h"
+#include "SceneBase.h"
+#include "Actor/player.h"
 #include "input_handler.h"
-#include "bullet.h"
-#include "invader_swarm.h"
-#include "score_manager.h"
+#include "Actor/bullet.h"
+#include "Actor/invader_swarm.h"
+#include "Scene/score_manager.h"
 #include <vector>
 #include <ctime>
 

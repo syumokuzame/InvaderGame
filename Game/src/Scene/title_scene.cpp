@@ -1,6 +1,6 @@
-#include "title_scene.h"
-#include "game_scene.h"
-#include "../../Engine/include/Renderer.h"
+#include "Scene/title_scene.h"
+#include "Scene/game_scene.h"
+#include "Renderer.h"
 #include "config.h"
 
 namespace game {

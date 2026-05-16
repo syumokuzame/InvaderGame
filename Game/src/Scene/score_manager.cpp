@@ -1,5 +1,5 @@
-#include "..\include\score_manager.h"
-#include "..\include\config.h"
+#include "Scene/score_manager.h"
+#include "config.h"
 #include <fstream>
 
 namespace game {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "config.h"
-#include "actor.h"
+#include "Actor/actor.h"
 
 class Bullet;
 

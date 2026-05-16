@@ -1,4 +1,4 @@
-#include "invader.h"
+#include "Actor/invader.h"
 #include "Renderer.h"
 
 namespace game {

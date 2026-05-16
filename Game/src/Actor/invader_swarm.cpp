@@ -1,5 +1,5 @@
-#include "invader_swarm.h"
-#include "bullet.h"
+#include "Actor/invader_swarm.h"
+#include "Actor/bullet.h"
 #include "Renderer.h"
 #include <algorithm>
 
