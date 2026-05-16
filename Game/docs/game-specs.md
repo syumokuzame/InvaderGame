@@ -268,6 +268,36 @@
   - 描画処理は `draw()` で呼ばれる
 - **ビルド**：成功、git push 完了
 
+### [2026-05-16] FrameWork / SceneBase / GameScene 導入 — Engine/Game 層分離完成
+- **対象ファイル（新規）**:
+  - `Engine/include/Renderer.h`, `Engine/src/Renderer.cpp`（`game::Renderer` → `engine::Renderer` に移動）
+  - `Engine/include/SceneBase.h`（抽象シーン基底クラス）
+  - `Engine/include/FrameWork.h`, `Engine/src/FrameWork.cpp`（メインループ管理）
+  - `Game/include/game_scene.h`, `Game/src/game_scene.cpp`（ゲームシーン実装）
+- **対象ファイル（削除）**:
+  - `Game/include/renderer.h`, `Game/src/renderer.cpp`（Engine 層に移動）
+  - `Game/include/game.h`, `Game/src/game.cpp`（GameScene に置き換え）
+- **対象ファイル（更新）**:
+  - `Engine/include/ActorBase.h` — `draw(game::Renderer&)` → `draw(engine::Renderer&)`
+  - `Game/include/actor.h`, `player.h`, `bullet.h`, `invader.h`, `invader_swarm.h` — 同上
+  - 各 `.cpp` ファイル — include パス・関数シグネチャ更新
+  - `Game/src/main.cpp` — `FrameWork` + `GameScene` を使う形に書き換え
+- **アーキテクチャ**:
+  ```
+  main() [Game]
+    └─ engine::FrameWork (Renderer を所有、メインループ)
+         └─ game::GameScene : engine::SceneBase
+              ├─ calc()  — 入力処理・物理更新
+              └─ draw(engine::Renderer&) — 全描画
+  ```
+- **仕様**:
+  - `engine::SceneBase` — `calc()` / `draw(Renderer&)` 純粋仮想 + `running_` / `quit()` 管理
+  - `engine::FrameWork` — `Renderer` を値メンバとして所有、フレームレート制御
+  - `game::GameScene` — 元の `Game` クラスのロジックをすべて内包
+  - `Renderer` は Engine 層で定義（`Config` 定数参照のみ Game 依存が残る）
+  - シーン遷移は将来対応予定
+- **ビルド**：成功、git push 完了
+
 ---
 
 *記録完了*
