@@ -13,6 +13,13 @@ TitleScene::TitleScene() {
 void TitleScene::calc() {
     input_.poll();
 
+    // クールダウン中は入力を受け付けない
+    if (inputCooldown_ > 0) {
+        --inputCooldown_;
+        ++frameCount_;
+        return;
+    }
+
     if (input_.isQuit()) {
         quit();
         return;

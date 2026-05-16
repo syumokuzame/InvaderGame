@@ -14,7 +14,8 @@ public:
 
 private:
     InputHandler input_;
-    int          frameCount_ = 0;  // 点滅エフェクト用
+    int          frameCount_     = 0;   // 点滅エフェクト用
+    int          inputCooldown_  = 30;  // 入力受け付けクールダウン（フレーム）
 };
 
 }  // namespace game

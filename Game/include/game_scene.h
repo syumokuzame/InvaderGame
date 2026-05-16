@@ -32,6 +32,7 @@ private:
     std::time_t  gameStartTime_;
     int          clearCounter_;
     int          lastAliveCount_;
+    int          inputCooldown_  = 30;  // 入力受け付けクールダウン（フレーム）
 
     Player       player_;
     InputHandler input_;

@@ -20,6 +20,12 @@ GameScene::GameScene()
 void GameScene::processInput() {
     input_.poll();
 
+    // クールダウン中は入力を受け付けない
+    if (inputCooldown_ > 0) {
+        --inputCooldown_;
+        return;
+    }
+
     if (input_.isQuit())  { changeScene(new TitleScene()); return; }
     if (input_.isLeft())  player_.moveLeft();
     if (input_.isRight()) player_.moveRight();
