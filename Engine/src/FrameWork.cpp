@@ -7,11 +7,25 @@ namespace engine {
 FrameWork::FrameWork(SceneBase* scene, int frameMs)
     : scene_(scene), frameMs_(frameMs) {}
 
+FrameWork::~FrameWork() {
+    delete scene_;
+}
+
 void FrameWork::run() {
-    while (scene_->isRunning()) {
+    while (true) {
         DWORD frameStart = GetTickCount();
 
         scene_->calc();
+
+        // シーン切り替えチェック（isRunning より優先）
+        SceneBase* next = scene_->takeNextScene();
+        if (next) {
+            delete scene_;
+            scene_ = next;
+            continue;
+        }
+
+        if (!scene_->isRunning()) break;
 
         renderer_.clear();
         scene_->draw(renderer_);

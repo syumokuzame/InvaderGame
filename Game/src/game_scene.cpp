@@ -1,4 +1,5 @@
 #include "game_scene.h"
+#include "title_scene.h"
 #include "../../Engine/include/Renderer.h"
 #include "config.h"
 #include <algorithm>
@@ -17,7 +18,7 @@ GameScene::GameScene()
 void GameScene::processInput() {
     input_.poll();
 
-    if (input_.isQuit())  { quit(); return; }
+    if (input_.isQuit())  { changeScene(new TitleScene()); return; }
     if (input_.isLeft())  player_.moveLeft();
     if (input_.isRight()) player_.moveRight();
     if (input_.isShoot()) {

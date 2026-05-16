@@ -1,12 +1,11 @@
-#include "game_scene.h"
+#include "title_scene.h"
 #include "config.h"
 #include "FrameWork.h"
 #include <iostream>
 
 int main() {
     try {
-        game::GameScene scene;
-        engine::FrameWork fw(&scene, Config::FRAME_MS);
+        engine::FrameWork fw(new game::TitleScene(), Config::FRAME_MS);
         fw.run();
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
