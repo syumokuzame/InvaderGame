@@ -1,10 +1,8 @@
 #pragma once
 
-namespace game {
-    class Renderer;
-}
-
 namespace engine {
+
+class Renderer;
 
 /**
  * @class ActorBase
@@ -16,15 +14,12 @@ public:
     ActorBase(int x, int y);
     virtual ~ActorBase() = default;
 
-    // 毎フレーム呼ばれる処理
     virtual void calc() = 0;
-    virtual void draw(game::Renderer& renderer) const = 0;
+    virtual void draw(Renderer& renderer) const = 0;
 
-    // 位置情報取得
     int x() const { return x_; }
     int y() const { return y_; }
 
-    // 状態判定
     virtual bool isActive() const = 0;
 
 protected:

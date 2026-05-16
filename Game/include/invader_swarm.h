@@ -4,7 +4,7 @@
 #include "config.h"
 #include <vector>
 
-class Renderer;
+namespace engine { class Renderer; }
 
 namespace game {
 
@@ -16,7 +16,7 @@ public:
 
     void reset(int level);    // レベルに応じて速度・頻度を設定
     void update(std::vector<Bullet>& bullets);
-    void draw(Renderer& renderer) const;
+    void draw(engine::Renderer& renderer) const;
 
     bool allDefeated() const;
     bool hasReachedBottom() const;

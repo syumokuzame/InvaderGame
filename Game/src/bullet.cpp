@@ -1,5 +1,5 @@
 #include "bullet.h"
-#include "renderer.h"
+#include "Renderer.h"
 #include "config.h"
 
 namespace game {
@@ -18,7 +18,7 @@ void Bullet::calc() {
         active_ = false;
 }
 
-void Bullet::draw(Renderer& renderer) const {
+void Bullet::draw(engine::Renderer& renderer) const {
     if (!active_) return;
     renderer.draw(x_, y_, '|');
 }

@@ -1,6 +1,6 @@
 #include "invader_swarm.h"
 #include "bullet.h"
-#include "renderer.h"
+#include "Renderer.h"
 #include <algorithm>
 
 namespace game {
@@ -123,7 +123,7 @@ void InvaderSwarm::update(std::vector<Bullet>& bullets) {
     }
 }
 
-void InvaderSwarm::draw(Renderer& renderer) const {
+void InvaderSwarm::draw(engine::Renderer& renderer) const {
     for (const auto& inv : invaders_) {
         inv.draw(renderer);
     }

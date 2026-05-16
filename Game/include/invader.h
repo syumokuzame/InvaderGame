@@ -2,8 +2,6 @@
 
 #include "actor.h"
 
-class Renderer;
-
 namespace game {
 
 class Invader : public Actor {
@@ -11,7 +9,7 @@ public:
     Invader(int x, int y, int row);
 
     void calc() override;   // 消滅アニメを1フレーム進める
-    void draw(Renderer& renderer) const override;
+    void draw(engine::Renderer& renderer) const override;
     bool isActive() const override;
 
     bool isAlive()     const { return alive_; }

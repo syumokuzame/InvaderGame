@@ -1,5 +1,5 @@
 #include "player.h"
-#include "renderer.h"
+#include "Renderer.h"
 #include "config.h"
 
 namespace game {
@@ -64,7 +64,7 @@ void Player::calc() {
 }
 
 // 自機を3文字で描画
-void Player::draw(Renderer& renderer) const {
+void Player::draw(engine::Renderer& renderer) const {
     // 射撃アニメーション中は中央が '|' に変わる
     if (shoot_frame_ > 0) {
         renderer.draw(x_ - 1, y_, '<');

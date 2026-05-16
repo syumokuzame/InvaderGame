@@ -2,8 +2,6 @@
 
 #include "actor.h"
 
-class Renderer;
-
 enum class BulletOwner { Player, Enemy };
 
 namespace game {
@@ -13,7 +11,7 @@ public:
     Bullet(int x, int y, BulletOwner owner);
 
     void calc() override;
-    void draw(Renderer& renderer) const override;
+    void draw(engine::Renderer& renderer) const override;
     bool isActive() const override;
 
     BulletOwner owner() const { return owner_; }

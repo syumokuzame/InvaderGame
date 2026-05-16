@@ -1,5 +1,5 @@
 #include "invader.h"
-#include "renderer.h"
+#include "Renderer.h"
 
 namespace game {
 
@@ -50,7 +50,7 @@ int Invader::scoreValue() const {
 static constexpr int INVADER_WIDTH = 3;   // 敵の幅: 3 (中心-1 から 中心+1)
 static constexpr int INVADER_HEIGHT = 2;  // 敵の高さ: 2 行
 
-void Invader::draw(Renderer& renderer) const {
+void Invader::draw(engine::Renderer& renderer) const {
     // スポーン中：アニメーション表現
     if (spawnFrame_ < SPAWN_FRAMES) {
         char spawnChars[] = { '.', 'o', 'O', '*' };

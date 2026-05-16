@@ -1,17 +1,17 @@
-#include "game.h"
+#include "game_scene.h"
+#include "config.h"
+#include "FrameWork.h"
 #include <iostream>
-#include <cstdlib>
 
 int main() {
     try {
-        game::Game game;
-        game.run();
+        game::GameScene scene;
+        engine::FrameWork fw(&scene, Config::FRAME_MS);
+        fw.run();
     } catch (const std::exception& e) {
-        // エラーメッセージを出力して終了
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;
     } catch (...) {
-        // 予期しない例外
         std::cerr << "Unexpected error occurred" << std::endl;
         return 1;
     }
