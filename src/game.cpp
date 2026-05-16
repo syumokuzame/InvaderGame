@@ -49,14 +49,15 @@ void Game::processInput() {
 }
 
 void Game::update() {
+    // プレイヤーと弾の更新はゲーム状態に関わらず常に実行
+    player_.update();
+
+    // 弾を更新
+    for (auto& b : bullets_) {
+        b.update();
+    }
+
     if (state_ == GameState::Playing) {
-        player_.update();
-
-        // 弾を更新
-        for (auto& b : bullets_) {
-            b.update();
-        }
-
         // インベーダー群を更新（弾との当たり判定含む）
         swarm_.update(bullets_);
 
