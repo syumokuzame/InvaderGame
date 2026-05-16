@@ -62,7 +62,7 @@ void InvaderSwarm::reset(int level) {
 void InvaderSwarm::update(std::vector<Bullet>& bullets) {
     // 消滅アニメを進める
     for (auto& inv : invaders_) {
-        inv.update();
+        inv.calc();
     }
 
     // プレイヤー弾との当たり判定
@@ -123,9 +123,9 @@ void InvaderSwarm::update(std::vector<Bullet>& bullets) {
     }
 }
 
-void InvaderSwarm::render(Renderer& renderer) const {
+void InvaderSwarm::draw(Renderer& renderer) const {
     for (const auto& inv : invaders_) {
-        inv.render(renderer);
+        inv.draw(renderer);
     }
 }
 

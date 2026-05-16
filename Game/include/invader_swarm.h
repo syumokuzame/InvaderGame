@@ -16,7 +16,7 @@ public:
 
     void reset(int level);    // レベルに応じて速度・頻度を設定
     void update(std::vector<Bullet>& bullets);
-    void render(Renderer& renderer) const;
+    void draw(Renderer& renderer) const;
 
     bool allDefeated() const;
     bool hasReachedBottom() const;

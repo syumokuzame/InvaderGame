@@ -9,7 +9,7 @@ static constexpr char ROW_CHARS[] = { 'M', 'W', 'V' };
 Invader::Invader(int x, int y, int row)
     : Actor(x, y), row_(row), alive_(false), deathTimer_(0), spawnFrame_(0) {}
 
-void Invader::update() {
+void Invader::calc() {
     // スポーン中：フレームをインクリメント
     if (spawnFrame_ < SPAWN_FRAMES) {
         spawnFrame_++;
@@ -50,7 +50,7 @@ int Invader::scoreValue() const {
 static constexpr int INVADER_WIDTH = 3;   // 敵の幅: 3 (中心-1 から 中心+1)
 static constexpr int INVADER_HEIGHT = 2;  // 敵の高さ: 2 行
 
-void Invader::render(Renderer& renderer) const {
+void Invader::draw(Renderer& renderer) const {
     // スポーン中：アニメーション表現
     if (spawnFrame_ < SPAWN_FRAMES) {
         char spawnChars[] = { '.', 'o', 'O', '*' };

@@ -10,7 +10,7 @@ Bullet::Bullet(int x, int y, BulletOwner owner)
       active_(true),
       owner_(owner) {}
 
-void Bullet::update() {
+void Bullet::calc() {
     if (!active_) return;
     y_ += dy_;
     // フィールド枠（上枠=UI_HEIGHT+1、下枠=FIELD_HEIGHT-1）に到達したら無効化
@@ -18,7 +18,7 @@ void Bullet::update() {
         active_ = false;
 }
 
-void Bullet::render(Renderer& renderer) const {
+void Bullet::draw(Renderer& renderer) const {
     if (!active_) return;
     renderer.draw(x_, y_, '|');
 }

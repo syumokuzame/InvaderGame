@@ -52,11 +52,11 @@ void Game::processInput() {
 
 void Game::update() {
     // プレイヤーと弾の更新はゲーム状態に関わらず常に実行
-    player_.update();
+    player_.calc();
 
     // 弾を更新
     for (auto& b : bullets_) {
-        b.update();
+        b.calc();
     }
 
     if (state_ == GameState::Playing) {
@@ -134,13 +134,13 @@ void Game::render() {
 
     // 弾を描画
     for (const auto& b : bullets_)
-        b.render(renderer_);
+        b.draw(renderer_);
 
     // インベーダー群を描画
-    swarm_.render(renderer_);
+    swarm_.draw(renderer_);
 
     // プレイヤー描画
-    player_.render(renderer_);
+    player_.draw(renderer_);
 
     // Clear メッセージ表示
     if (state_ == GameState::GameClear) {

@@ -51,7 +51,7 @@ void Player::clearBullet() {
     hasBullet_ = false;
 }
 
-void Player::update() {
+void Player::calc() {
     // 射撃アニメーションカウンターをデクリメント
     if (shoot_frame_ > 0) {
         --shoot_frame_;
@@ -64,7 +64,7 @@ void Player::update() {
 }
 
 // 自機を3文字で描画
-void Player::render(Renderer& renderer) const {
+void Player::draw(Renderer& renderer) const {
     // 射撃アニメーション中は中央が '|' に変わる
     if (shoot_frame_ > 0) {
         renderer.draw(x_ - 1, y_, '<');

@@ -16,8 +16,8 @@ public:
     void moveRight();
     bool shoot();        // 発射成功なら true
 
-    void update() override;
-    void render(Renderer& renderer) const override;
+    void calc() override;
+    void draw(Renderer& renderer) const override;
     bool isActive() const override;
 
     int  lives()  const { return lives_; }

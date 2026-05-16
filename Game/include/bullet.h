@@ -12,8 +12,8 @@ class Bullet : public Actor {
 public:
     Bullet(int x, int y, BulletOwner owner);
 
-    void update() override;
-    void render(Renderer& renderer) const override;
+    void calc() override;
+    void draw(Renderer& renderer) const override;
     bool isActive() const override;
 
     BulletOwner owner() const { return owner_; }

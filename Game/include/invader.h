@@ -10,8 +10,8 @@ class Invader : public Actor {
 public:
     Invader(int x, int y, int row);
 
-    void update() override;   // 消滅アニメを1フレーム進める
-    void render(Renderer& renderer) const override;
+    void calc() override;   // 消滅アニメを1フレーム進める
+    void draw(Renderer& renderer) const override;
     bool isActive() const override;
 
     bool isAlive()     const { return alive_; }

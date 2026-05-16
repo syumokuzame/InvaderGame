@@ -17,8 +17,8 @@ public:
     virtual ~ActorBase() = default;
 
     // 毎フレーム呼ばれる処理
-    virtual void update() = 0;
-    virtual void render(game::Renderer& renderer) const = 0;
+    virtual void calc() = 0;
+    virtual void draw(game::Renderer& renderer) const = 0;
 
     // 位置情報取得
     int x() const { return x_; }
