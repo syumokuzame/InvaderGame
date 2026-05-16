@@ -5,11 +5,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # ソースファイル
-file(GLOB_RECURSE SOURCES "Game/src/*.cpp")
+file(GLOB_RECURSE GAME_SOURCES "Game/src/*.cpp")
+file(GLOB_RECURSE ENGINE_SOURCES "Engine/src/*.cpp")
 
-add_executable(InvaderGame ${SOURCES})
+add_executable(InvaderGame ${GAME_SOURCES} ${ENGINE_SOURCES})
 
-target_include_directories(InvaderGame PRIVATE Game/include)
+target_include_directories(InvaderGame PRIVATE Game/include Engine/include)
 
 # Windows Console API は標準で利用可能（追加リンク不要）
 if(MSVC)

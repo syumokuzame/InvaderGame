@@ -1,6 +1,8 @@
 #pragma once
 #include <windows.h>
 
+namespace game {
+
 // ダブルバッファリングを用いた描画管理
 class Renderer {
 public:
@@ -30,3 +32,5 @@ private:
     void restoreConsoleSettings();
     // TODO: ダブルバッファの実装
 };
+
+}  // namespace game

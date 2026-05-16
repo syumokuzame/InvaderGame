@@ -5,6 +5,9 @@
 #include <vector>
 
 class Renderer;
+
+namespace game {
+
 class Bullet;
 
 class InvaderSwarm {
@@ -30,3 +33,5 @@ private:
 
     void moveDown();
 };
+
+}  // namespace game

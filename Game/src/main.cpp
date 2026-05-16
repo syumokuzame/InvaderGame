@@ -4,7 +4,7 @@
 
 int main() {
     try {
-        Game game;
+        game::Game game;
         game.run();
     } catch (const std::exception& e) {
         // エラーメッセージを出力して終了

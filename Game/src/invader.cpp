@@ -1,11 +1,13 @@
 #include "invader.h"
 #include "renderer.h"
 
+namespace game {
+
 // 行ごとの生存時キャラクター（上段=M, 中段=W, 下段=V）
 static constexpr char ROW_CHARS[] = { 'M', 'W', 'V' };
 
 Invader::Invader(int x, int y, int row)
-    : x_(x), y_(y), row_(row), alive_(false), deathTimer_(0), spawnFrame_(0) {}
+    : Actor(x, y), row_(row), alive_(false), deathTimer_(0), spawnFrame_(0) {}
 
 void Invader::update() {
     // スポーン中：フレームをインクリメント
@@ -89,3 +91,9 @@ void Invader::render(Renderer& renderer) const {
     }
     // deathTimer_ == 0: 完全消滅（何も描画しない）
 }
+
+bool Invader::isActive() const {
+    return spawnFrame_ < SPAWN_FRAMES || alive_;
+}
+
+}  // namespace game

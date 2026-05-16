@@ -6,6 +6,8 @@
 #include <stdexcept>
 #include <algorithm>
 
+namespace game {
+
 // バックバッファ（文字 + 属性）
 static CHAR_INFO s_backBuf[Config::FIELD_HEIGHT * Config::FIELD_WIDTH];
 
@@ -167,3 +169,5 @@ void Renderer::drawInstructions() {
     int instrX = 2;
     drawString(instrX, 1, instructions);
 }
+
+}  // namespace game

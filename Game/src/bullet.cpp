@@ -2,8 +2,10 @@
 #include "renderer.h"
 #include "config.h"
 
+namespace game {
+
 Bullet::Bullet(int x, int y, BulletOwner owner)
-    : x_(x), y_(y),
+    : Actor(x, y),
       dy_(owner == BulletOwner::Player ? -1 : 1),
       active_(true),
       owner_(owner) {}
@@ -24,3 +26,9 @@ void Bullet::render(Renderer& renderer) const {
 void Bullet::deactivate() {
     active_ = false;
 }
+
+bool Bullet::isActive() const {
+    return active_;
+}
+
+}  // namespace game

@@ -1,6 +1,8 @@
 #include "input_handler.h"
 #include <windows.h>
 
+namespace game {
+
 // X マクロでキーボタン情報を再定義
 #define KEY_BUTTONS(X) \
     X(Left,  left) \
@@ -39,3 +41,5 @@ KEY_BUTTONS(DEFINE_GETTER)
 #undef DEFINE_GETTER
 
 #undef KEY_BUTTONS
+
+}  // namespace game

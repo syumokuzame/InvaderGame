@@ -2,9 +2,10 @@
 #include "renderer.h"
 #include "config.h"
 
+namespace game {
+
 Player::Player()
-    : x_(Config::FIELD_WIDTH / 2),
-      y_(Config::FIELD_HEIGHT - 2),
+    : Actor(Config::FIELD_WIDTH / 2, Config::FIELD_HEIGHT - 2),
       lives_(Config::PLAYER_LIVES),
       hasBullet_(false),
       shoot_frame_(0),
@@ -86,11 +87,9 @@ void Player::render(Renderer& renderer) const {
             renderer.draw(x_ - 1, y_, '<');
             renderer.draw(x_,     y_, '^');
             renderer.draw(x_ + 1, y_, '>');
-
         }
-    }
-    // 通常状態
-    else {
+    } else {
+        // 通常状態
         renderer.draw(x_ - 1, y_, '<');
         renderer.draw(x_,     y_, '^');
         renderer.draw(x_ + 1, y_, '>');
@@ -110,3 +109,9 @@ void Player::reset() {
     move_frame_ = 0;
     last_direction_ = 0;
 }
+
+bool Player::isActive() const {
+    return isAlive();
+}
+
+}  // namespace game

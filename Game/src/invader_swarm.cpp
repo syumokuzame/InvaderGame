@@ -3,6 +3,8 @@
 #include "renderer.h"
 #include <algorithm>
 
+namespace game {
+
 InvaderSwarm::InvaderSwarm()
     : dx_(1), speed_(20), timer_(0), shootInterval_(60), shootTimer_(0) {
     reset(1);
@@ -142,3 +144,5 @@ bool InvaderSwarm::hasReachedBottom() const {
     }
     return false;
 }
+
+}  // namespace game

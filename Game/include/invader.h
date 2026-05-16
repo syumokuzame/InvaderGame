@@ -1,19 +1,21 @@
 #pragma once
 
+#include "actor.h"
+
 class Renderer;
 
-class Invader {
+namespace game {
+
+class Invader : public Actor {
 public:
     Invader(int x, int y, int row);
 
-    void update();   // 消滅アニメを1フレーム進める
-    void render(Renderer& renderer) const;
+    void update() override;   // 消滅アニメを1フレーム進める
+    void render(Renderer& renderer) const override;
+    bool isActive() const override;
 
-    int  x()           const { return x_; }
-    int  y()           const { return y_; }
     bool isAlive()     const { return alive_; }
     bool isSpawning()  const { return spawnFrame_ < SPAWN_FRAMES; }  // スポーン中？
-    bool isActive()    const { return spawnFrame_ < SPAWN_FRAMES || alive_; }  // スポーン中または生存中
     bool isFullyDead() const { return spawnFrame_ >= SPAWN_FRAMES && !alive_ && deathTimer_ <= 0; }
     int  scoreValue()  const;  // 行によってスコアが異なる
 
@@ -27,10 +29,10 @@ private:
     // スポーンアニメーション: . → o → O → * (各2フレーム計8フレーム)
     static constexpr int SPAWN_FRAMES = 8;
 
-    int  x_;
-    int  y_;
     int  row_;        // 0=上段, 1=中段, 2=下段
     bool alive_;
     int  deathTimer_; // 消滅アニメ残りフレーム数 (0=終了)
     int  spawnFrame_; // スポーンカウンター (0-3=スポーン中, 4以上=スポーン完了)
 };
+
+}  // namespace game

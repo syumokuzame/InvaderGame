@@ -2,6 +2,8 @@
 
 #include <string>
 
+namespace game {
+
 class ScoreManager {
 public:
     ScoreManager();
@@ -18,3 +20,5 @@ private:
     int score_;
     int highScore_;
 };
+
+}  // namespace game

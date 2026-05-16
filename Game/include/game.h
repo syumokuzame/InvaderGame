@@ -10,6 +10,8 @@
 #include <vector>
 #include <ctime>
 
+namespace game {
+
 enum class GameState {
     Title,
     Playing,
@@ -45,3 +47,5 @@ private:
     std::vector<Bullet> bullets_;
     InvaderSwarm  swarm_;
 };
+
+}  // namespace game

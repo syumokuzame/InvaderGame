@@ -2,6 +2,8 @@
 #include "..\include\config.h"
 #include <fstream>
 
+namespace game {
+
 ScoreManager::ScoreManager()
     : score_(0), highScore_(0) {
     loadHighScore();
@@ -34,3 +36,5 @@ void ScoreManager::saveHighScore() {
 void ScoreManager::reset() {
     score_ = 0;
 }
+
+}  // namespace game

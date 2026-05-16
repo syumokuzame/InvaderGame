@@ -1,5 +1,7 @@
 #pragma once
 
+namespace game {
+
 // X マクロでキーボタン情報を定義
 #define KEY_BUTTONS(X) \
     X(Left,  left) \
@@ -28,5 +30,7 @@ private:
     KEY_BUTTONS(DECLARE_MEMBER)
     #undef DECLARE_MEMBER
 };
+
+}  // namespace game
 
 #undef KEY_BUTTONS

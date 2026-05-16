@@ -102,6 +102,18 @@ save/      ハイスコアデータ
 - X マクロパターンを活用（既存コードの `input_handler.h` 参照）
 - 新規クラスは既存の命名規則（PascalCase クラス名、snake_case メンバ変数 + `_` suffix）に従う
 
+## リファクタリングルール（Engine層 / Game層の分離）
+
+### Namespace ルール
+- **Engine層** の実装は必ず `namespace engine` の中に入れる
+- **Game層** の実装は必ず `namespace game` の中に入れる
+
+### Base クラスの命名規則
+- Engine層で Game層から継承される前提のクラスには末尾に `Base` をつける
+  - 例: `engine::ActorBase`（Game層で `game::Player` が継承）
+  - ヘッダ: `Engine/include/ActorBase.h`
+  - 実装: `Engine/src/ActorBase.cpp`
+
 ## 禁止事項
 
 - ビルド実行前にユーザーへの確認を求めること

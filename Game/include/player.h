@@ -1,11 +1,14 @@
 #pragma once
 
 #include "config.h"
+#include "actor.h"
 
 class Bullet;
 class Renderer;
 
-class Player {
+namespace game {
+
+class Player : public Actor {
 public:
     Player();
 
@@ -13,11 +16,10 @@ public:
     void moveRight();
     bool shoot();        // 発射成功なら true
 
-    void update();
-    void render(Renderer& renderer) const;
+    void update() override;
+    void render(Renderer& renderer) const override;
+    bool isActive() const override;
 
-    int  x()      const { return x_; }
-    int  y()      const { return y_; }
     int  lives()  const { return lives_; }
     bool isAlive() const { return lives_ > 0; }
 
@@ -26,8 +28,6 @@ public:
     void clearBullet();   // 弾が画面から消えたときに呼ぶ
 
 private:
-    int  x_;
-    int  y_;
     int  lives_;
     bool hasBullet_;      // 弾が画面上に存在するか
     
@@ -36,3 +36,5 @@ private:
     int move_frame_;      // 移動アニメーションカウンター (0=無効, 1-15=移動中)
     int last_direction_;  // 最後の移動方向 (-1=左, 0=停止, 1=右)
 };
+
+}  // namespace game

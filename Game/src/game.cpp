@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <ctime>
 
+namespace game {
+
 Game::Game()
     : state_(GameState::Playing), level_(1), running_(true), clearCounter_(0), lastAliveCount_(0) {
     gameStartTime_ = std::time(nullptr);
@@ -158,3 +160,5 @@ void Game::debugKillAllInvaders() {
         }
     }
 }
+
+}  // namespace game
