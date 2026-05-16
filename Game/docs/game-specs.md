@@ -53,3 +53,13 @@
   - `game::TitleScene` を新規作成。ENTER でゲームシーンへ遷移、Q/ESC でアプリ終了。テキストの点滅エフェクト付き
   - `game::GameScene` の Q/ESC キーを `quit()` から `changeScene(new TitleScene())` に変更（ゲーム中にタイトルへ戻れる）
   - `main.cpp` を `new game::TitleScene()` からの起動に変更
+
+### [2026-05-16] シーン遷移：Factory パターンでの再実装
+- **対象ファイル**: `Engine/include/SceneBase.h`, `Engine/include/FrameWork.h`, `Engine/src/FrameWork.cpp`, `Game/src/Scene/title_scene.cpp`, `Game/src/Scene/game_scene.cpp`, `Game/src/main.cpp`
+- **内容**:
+  - `engine::SceneType` enum class を追加（Title, Game）
+  - `engine::SceneBase::changeScene()` の引数を `SceneBase*` から `SceneType` に変更 — シーン側では次の行先のみ指定
+  - `engine::FrameWork` に `setSceneFactory()` メソッドを追加。Game層が factory 関数を登録できる
+  - `engine::FrameWork::run()` で factory を使ってシーンを生成（new をFramework側で実施）
+  - `game::main.cpp` で lambda factory を登録し、SceneType::Title/Game に対応するシーンを生成
+  - **メリット**: Engine層がGame層のシーン型情報を持たず、Framework側がシーン生成を統一的に管理
