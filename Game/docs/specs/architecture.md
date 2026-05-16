@@ -108,3 +108,67 @@ main() [Game]
 
 ### ビルド・デプロイ
 - 成功、git push 完了
+
+---
+
+## Game層のファイル構造整理 [2026-05-16]
+
+### 対象ファイル
+- `Game/include/` ディレクトリ配下
+- `Game/src/` ディレクトリ配下
+- 全体の #include パス修正
+
+### 内容
+
+#### ディレクトリ構造の改善
+Game層内のinclude/srcを機能別に分類：
+
+**Before:**
+```
+Game/include/
+├── actor.h, player.h, bullet.h, invader.h, invader_swarm.h
+├── game_scene.h, title_scene.h, score_manager.h
+├── config.h, input_handler.h
+├── ... (その他)
+```
+
+**After:**
+```
+Game/include/
+├── Actor/
+│   ├── actor.h
+│   ├── player.h
+│   ├── bullet.h
+│   ├── invader.h
+│   └── invader_swarm.h
+├── Scene/
+│   ├── game_scene.h
+│   ├── title_scene.h
+│   └── score_manager.h
+├── config.h
+└── input_handler.h
+```
+
+同様に `Game/src/` も Actor/Scene ディレクトリを作成して分類
+
+#### #include パスの統一
+- 全ファイルの #include を CMake の include directories（`Game/include` と `Engine/include`）を基準とした絶対パスに統一
+- ヘッダー間の参照パス例：
+  - `Game/include/Actor/player.h`: `#include "config.h"` / `#include "Actor/actor.h"`
+  - `Game/include/Scene/game_scene.h`: `#include "Actor/player.h"` / `#include "Scene/score_manager.h"`
+  - `Game/src/Actor/player.cpp`: `#include "Actor/player.h"` / `#include "config.h"`
+
+### 仕様
+
+#### メリット
+- **可読性向上**: ファイルカテゴリが可視化される
+- **保守性向上**: Actor関連ファイルはActor/ディレクトリに集約、Scene関連もScene/ディレクトリに集約
+- **スケーラビリティ**: 新規ファイル追加時の配置が明確
+
+#### ファイル分類ルール
+- **Actor/** : キャラクター（Actor, Player, Bullet, Invader）
+- **Scene/** : ゲーム進行管理（GameScene, TitleScene, ScoreManager）
+- **Root** : 共通設定・入力（config.h, input_handler.h）
+
+### ビルド・デプロイ
+- 成功、git push 完了
