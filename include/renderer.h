@@ -23,6 +23,7 @@ private:
     SMALL_RECT originalWindowRect;
     CONSOLE_CURSOR_INFO originalCursorInfo;
     WORD originalAttributes;
+    COORD currentBufferSize;  // 現在のバッファサイズ
     
     void fullClear();          // コンソール全体をクリア（起動時）
     void clearGameArea();      // ゲーム描画領域を消去（終了時）

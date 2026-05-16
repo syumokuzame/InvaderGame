@@ -3,42 +3,66 @@
 #include <windows.h>
 #include <cstring>
 #include <cstdio>
+#include <stdexcept>
+#include <algorithm>
 
 // バックバッファ（文字 + 属性）
 static CHAR_INFO s_backBuf[Config::FIELD_HEIGHT * Config::FIELD_WIDTH];
 
 Renderer::Renderer() {
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hOut == INVALID_HANDLE_VALUE) {
+        throw std::runtime_error("Failed to get standard output handle");
+    }
 
     // 元のコンソール設定を保存
     CONSOLE_SCREEN_BUFFER_INFO csbi;
-    GetConsoleScreenBufferInfo(hOut, &csbi);
+    if (!GetConsoleScreenBufferInfo(hOut, &csbi)) {
+        throw std::runtime_error("Failed to get console screen buffer info");
+    }
     originalBufferSize = csbi.dwSize;
     originalWindowRect = csbi.srWindow;
     originalAttributes = csbi.wAttributes;
-    GetConsoleCursorInfo(hOut, &originalCursorInfo);
+    currentBufferSize = csbi.dwSize;  // 現在のバッファサイズを記録
+    
+    if (!GetConsoleCursorInfo(hOut, &originalCursorInfo)) {
+        throw std::runtime_error("Failed to get console cursor info");
+    }
 
     // ターミナル全体をクリア
     fullClear();
 
-    // スクリーンバッファサイズをフィールドに合わせる
+    // スクリーンバッファサイズをフィールドに合わせる（必要に応じて現在のサイズを使用）
     COORD bufSize = { Config::FIELD_WIDTH, Config::FIELD_HEIGHT };
-    SetConsoleScreenBufferSize(hOut, bufSize);
+    if (!SetConsoleScreenBufferSize(hOut, bufSize)) {
+        // バッファサイズ設定が失敗した場合、現在のバッファサイズを使用
+        // （コンソールのリダイレクトやターミナルの制約により失敗することがある）
+        bufSize = csbi.dwSize;  // 現在のサイズを保持
+    } else {
+        currentBufferSize = bufSize;  // バッファサイズ変更成功時は記録
+    }
 
-    // ウィンドウサイズをフィールドに合わせる
+    // ウィンドウサイズをフィールドに合わせる（バッファサイズ内に収まるよう調整）
     SMALL_RECT winRect = { 0, 0,
-        static_cast<SHORT>(Config::FIELD_WIDTH - 1),
-        static_cast<SHORT>(Config::FIELD_HEIGHT - 1) };
-    SetConsoleWindowInfo(hOut, TRUE, &winRect);
+        static_cast<SHORT>((bufSize.X > Config::FIELD_WIDTH ? Config::FIELD_WIDTH : bufSize.X) - 1),
+        static_cast<SHORT>((bufSize.Y > Config::FIELD_HEIGHT ? Config::FIELD_HEIGHT : bufSize.Y) - 1) };
+    
+    if (!SetConsoleWindowInfo(hOut, TRUE, &winRect)) {
+        // ウィンドウサイズ設定も失敗した場合は、現在のウィンドウサイズでゲームを実行
+        // ゲームロジックには影響しないので、エラーをスロー しない
+    }
 
     hideCursor();
     clear();
 }
 
 Renderer::~Renderer() {
-    clearGameArea();
-    showCursor();
-    restoreConsoleSettings();
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hOut != INVALID_HANDLE_VALUE) {
+        clearGameArea();
+        showCursor();
+        restoreConsoleSettings();
+    }
 }
 
 void Renderer::fullClear() {
@@ -88,11 +112,21 @@ void Renderer::drawString(int x, int y, const char* str) {
 
 void Renderer::present() {
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    COORD bufSize   = { Config::FIELD_WIDTH, Config::FIELD_HEIGHT };
-    COORD bufCoord  = { 0, 0 };
-    SMALL_RECT rect = { 0, 0,
-        static_cast<SHORT>(Config::FIELD_WIDTH - 1),
-        static_cast<SHORT>(Config::FIELD_HEIGHT - 1) };
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    
+    // 現在のコンソール情報を取得
+    if (!GetConsoleScreenBufferInfo(hOut, &csbi)) {
+        return;
+    }
+    
+    // 実際のバッファサイズと描画領域を計算
+    SHORT bufWidth = (csbi.dwSize.X < Config::FIELD_WIDTH) ? csbi.dwSize.X : Config::FIELD_WIDTH;
+    SHORT bufHeight = (csbi.dwSize.Y < Config::FIELD_HEIGHT) ? csbi.dwSize.Y : Config::FIELD_HEIGHT;
+    
+    COORD bufSize = { bufWidth, bufHeight };
+    COORD bufCoord = { 0, 0 };
+    SMALL_RECT rect = { 0, 0, static_cast<SHORT>(bufWidth - 1), static_cast<SHORT>(bufHeight - 1) };
+    
     WriteConsoleOutputA(hOut, s_backBuf, bufSize, bufCoord, &rect);
 }
 
