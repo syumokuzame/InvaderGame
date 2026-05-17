@@ -21,7 +21,7 @@ public:
     explicit GameScene(engine::Allocator& allocator);
 
     void calc() override;
-    void draw(engine::Renderer& renderer) override;
+    void draw() override;
 
 private:
     void processInput_();

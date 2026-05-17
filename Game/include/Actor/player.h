@@ -16,7 +16,7 @@ public:
     bool shoot_();        // 発射成功なら true
 
     void calc() override;
-    void draw(engine::Renderer& renderer) const override;
+    void draw() const override;
     bool isActive() const override;
 
     int  lives_()  const { return mLives; }

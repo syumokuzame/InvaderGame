@@ -2,8 +2,6 @@
 
 namespace engine {
 
-class Renderer;
-
 /**
  * @class ActorBase
  * @brief Game層のアクター基底クラス
@@ -15,7 +13,8 @@ public:
     virtual ~ActorBase() = default;
 
     virtual void calc() = 0;
-    virtual void draw(Renderer& renderer) const = 0;
+    // RenderQueue::instance() に描画コマンドを登録する
+    virtual void draw() const = 0;
 
     int x() const { return mX; }
     int y() const { return mY; }

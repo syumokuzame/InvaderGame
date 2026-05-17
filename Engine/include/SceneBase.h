@@ -4,8 +4,6 @@
 
 namespace engine {
 
-class Renderer;
-
 // シーン種別定義（Game層で sceneType を指定するために使用）
 enum class SceneType {
     Title,
@@ -18,7 +16,8 @@ public:
     explicit SceneBase(Allocator& allocator);
     virtual ~SceneBase() = default;
     virtual void calc() = 0;
-    virtual void draw(Renderer& renderer) = 0;
+    // RenderQueue::instance() に描画コマンドを登録する
+    virtual void draw() = 0;
 
     bool isRunning() const { return mRunning; }
 

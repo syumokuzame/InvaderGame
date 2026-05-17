@@ -1,6 +1,6 @@
 #include "Scene/title_scene.h"
 #include "Scene/game_scene.h"
-#include "Renderer.h"
+#include "RenderQueue.h"
 #include "config.h"
 
 namespace game {
@@ -34,19 +34,21 @@ void TitleScene::calc() {
     ++mFrameCount;
 }
 
-void TitleScene::draw(engine::Renderer& renderer) {
+void TitleScene::draw() {
+    auto& rq = engine::RenderQueue::instance();
+    const int uiLayer = static_cast<int>(engine::RenderLayer::UI);
     const int cx = Config::FIELD_WIDTH / 2;
     const int cy = Config::FIELD_HEIGHT / 2;
 
-    renderer.drawString(cx - 6, cy - 4, "INVADER GAME");
-    renderer.drawString(cx - 9, cy - 2, "======================");
+    rq.submitString(cx - 6, cy - 4, "INVADER GAME", uiLayer);
+    rq.submitString(cx - 9, cy - 2, "======================", uiLayer);
 
     // Press ENTER 点滅（60フレームサイクル）
     if ((mFrameCount / 30) % 2 == 0) {
-        renderer.drawString(cx - 9, cy, "  Press ENTER to Start  ");
+        rq.submitString(cx - 9, cy, "  Press ENTER to Start  ", uiLayer);
     }
 
-    renderer.drawString(cx - 9, cy + 2, " Press Q / ESC to Quit  ");
+    rq.submitString(cx - 9, cy + 2, " Press Q / ESC to Quit  ", uiLayer);
 }
 
 }  // namespace game

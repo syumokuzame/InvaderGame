@@ -10,7 +10,7 @@ public:
     explicit TitleScene(engine::Allocator& allocator);
 
     void calc() override;
-    void draw(engine::Renderer& renderer) override;
+    void draw() override;
 
 private:
     InputHandler mInput;

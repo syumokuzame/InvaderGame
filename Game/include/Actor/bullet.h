@@ -11,7 +11,7 @@ public:
     Bullet(int x, int y, BulletOwner owner);
 
     void calc() override;
-    void draw(engine::Renderer& renderer) const override;
+    void draw() const override;
     bool isActive() const override;
 
     BulletOwner owner() const { return mOwner; }

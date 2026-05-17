@@ -1,5 +1,5 @@
 #include "Actor/bullet.h"
-#include "Renderer.h"
+#include "RenderQueue.h"
 #include "config.h"
 
 namespace game {
@@ -18,9 +18,10 @@ void Bullet::calc() {
         mActive = false;
 }
 
-void Bullet::draw(engine::Renderer& renderer) const {
+void Bullet::draw() const {
     if (!mActive) return;
-    renderer.draw(mX, mY, '|');
+    engine::RenderQueue::instance().submit(mX, mY, '|',
+        static_cast<int>(engine::RenderLayer::Bullet));
 }
 
 void Bullet::deactivate_() {

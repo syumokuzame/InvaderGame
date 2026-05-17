@@ -1,5 +1,5 @@
 #include "Actor/invader.h"
-#include "Renderer.h"
+#include "RenderQueue.h"
 
 namespace game {
 
@@ -50,44 +50,45 @@ int Invader::scoreValue_() const {
 static constexpr int INVADER_WIDTH = 3;   // 敵の幅: 3 (中心-1 から 中心+1)
 static constexpr int INVADER_HEIGHT = 2;  // 敵の高さ: 2 行
 
-void Invader::draw(engine::Renderer& renderer) const {
+void Invader::draw() const {
+    auto& rq = engine::RenderQueue::instance();
     // スポーン中：アニメーション表現
     if (mSpawnFrame < SPAWN_FRAMES) {
         char spawnChars[] = { '.', 'o', 'O', '*' };
         char ch = spawnChars[mSpawnFrame / 2];
-        renderer.draw(mX - 1, mY, ch);
-        renderer.draw(mX, mY, ch);
-        renderer.draw(mX + 1, mY, ch);
-        renderer.draw(mX, mY + 1, ch);
+        rq.submit(mX - 1, mY, ch);
+        rq.submit(mX, mY, ch);
+        rq.submit(mX + 1, mY, ch);
+        rq.submit(mX, mY + 1, ch);
         return;
     }
     // スポーン完了後：敵機表示
     if (mAlive) {
         // 敵機をTミノ形で描画（上向き）
         // 上行: 左-中-右
-        renderer.draw(mX - 1, mY, '*');
-        renderer.draw(mX, mY, '*');
-        renderer.draw(mX + 1, mY, '*');
+        rq.submit(mX - 1, mY, '*');
+        rq.submit(mX, mY, '*');
+        rq.submit(mX + 1, mY, '*');
         // 下行: 中心
-        renderer.draw(mX, mY + 1, '*');
+        rq.submit(mX, mY + 1, '*');
         return;
     }
     // 消滅アニメーション（3段階: * → + → .）
     if (mDeathTimer > DEATH_FRAMES * 2 / 3) {
-        renderer.draw(mX - 1, mY, '*');
-        renderer.draw(mX, mY, '*');
-        renderer.draw(mX + 1, mY, '*');
-        renderer.draw(mX, mY + 1, '*');
+        rq.submit(mX - 1, mY, '*');
+        rq.submit(mX, mY, '*');
+        rq.submit(mX + 1, mY, '*');
+        rq.submit(mX, mY + 1, '*');
     } else if (mDeathTimer > DEATH_FRAMES / 3) {
-        renderer.draw(mX - 1, mY, '+');
-        renderer.draw(mX, mY, '+');
-        renderer.draw(mX + 1, mY, '+');
-        renderer.draw(mX, mY + 1, '+');
+        rq.submit(mX - 1, mY, '+');
+        rq.submit(mX, mY, '+');
+        rq.submit(mX + 1, mY, '+');
+        rq.submit(mX, mY + 1, '+');
     } else if (mDeathTimer > 0) {
-        renderer.draw(mX - 1, mY, '.');
-        renderer.draw(mX, mY, '.');
-        renderer.draw(mX + 1, mY, '.');
-        renderer.draw(mX, mY + 1, '.');
+        rq.submit(mX - 1, mY, '.');
+        rq.submit(mX, mY, '.');
+        rq.submit(mX + 1, mY, '.');
+        rq.submit(mX, mY + 1, '.');
     }
     // mDeathTimer == 0: 完全消滅（何も描画しない）
 }

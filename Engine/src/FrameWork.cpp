@@ -1,5 +1,6 @@
 #include "FrameWork.h"
 #include "SceneBase.h"
+#include "RenderQueue.h"
 #include <windows.h>
 
 namespace engine {
@@ -37,7 +38,9 @@ void FrameWork::run(SceneType initialScene) {
         if (!mScene->isRunning()) break;
 
         mRenderer.clear();
-        mScene->draw(mRenderer);
+        RenderQueue::instance().clear();
+        mScene->draw();
+        RenderQueue::instance().flush(mRenderer);
         mRenderer.present();
 
         DWORD elapsed = GetTickCount() - frameStart;

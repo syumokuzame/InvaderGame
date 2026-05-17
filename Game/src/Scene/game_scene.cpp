@@ -1,9 +1,10 @@
 #include "Scene/game_scene.h"
 #include "Scene/title_scene.h"
-#include "Renderer.h"
+#include "RenderQueue.h"
 #include "config.h"
 #include <algorithm>
 #include <ctime>
+#include <cstdio>
 
 namespace game {
 
@@ -97,31 +98,49 @@ void GameScene::calc() {
     );
 }
 
-void GameScene::draw(engine::Renderer& renderer) {
+void GameScene::draw() {
+    auto& rq = engine::RenderQueue::instance();
+    const int uiLayer = static_cast<int>(engine::RenderLayer::UI);
+    const int bgLayer = static_cast<int>(engine::RenderLayer::Background);
+
+    // ヘッダー（UI レイヤー）
     std::time_t now = std::time(nullptr);
     int elapsedSeconds = static_cast<int>(now - mGameStartTime);
-    renderer.drawHeader("InvaderGame", mScoreManager.score_(), elapsedSeconds);
-    renderer.drawInstructions();
+    rq.submitString(1, 0, "InvaderGame", uiLayer);
 
+    char scoreBuf[32];
+    sprintf_s(scoreBuf, sizeof(scoreBuf), "Score: %d", mScoreManager.score_());
+    rq.submitString(Config::FIELD_WIDTH - 30, 0, scoreBuf, uiLayer);
+
+    char timeBuf[16];
+    int minutes = elapsedSeconds / 60;
+    int seconds  = elapsedSeconds % 60;
+    sprintf_s(timeBuf, sizeof(timeBuf), "%02d:%02d", minutes, seconds);
+    rq.submitString(Config::FIELD_WIDTH - 8, 0, timeBuf, uiLayer);
+
+    rq.submitString(2, 1, "LEFT/RIGHT: Move  SPACE: Shoot  P: Pause  Q: Quit", uiLayer);
+
+    // 枠線（Background レイヤー）
     for (int x = 0; x < Config::FIELD_WIDTH; ++x) {
-        renderer.draw(x, 2, '=');
-        renderer.draw(x, Config::FIELD_HEIGHT - 1, '=');
+        rq.submit(x, 2, '=', bgLayer);
+        rq.submit(x, Config::FIELD_HEIGHT - 1, '=', bgLayer);
     }
     for (int y = 3; y < Config::FIELD_HEIGHT - 1; ++y) {
-        renderer.draw(0, y, '|');
-        renderer.draw(Config::FIELD_WIDTH - 1, y, '|');
+        rq.submit(0, y, '|', bgLayer);
+        rq.submit(Config::FIELD_WIDTH - 1, y, '|', bgLayer);
     }
 
+    // Actor（Actor / Bullet レイヤー）
     for (const auto& b : mBullets)
-        b.draw(renderer);
+        b.draw();
 
-    mSwarm.draw_(renderer);
-    mPlayer->draw(renderer);
+    mSwarm.draw_();
+    mPlayer->draw();
 
     if (mState == GameState::GameClear) {
         int msgY = Config::FIELD_HEIGHT / 2;
         int msgX = Config::FIELD_WIDTH / 2 - 2;
-        renderer.drawString(msgX, msgY, "CLEAR!");
+        rq.submitString(msgX, msgY, "CLEAR!", uiLayer);
     }
 }
 
