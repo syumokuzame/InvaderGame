@@ -8,17 +8,17 @@ class ScoreManager {
 public:
     ScoreManager();
 
-    void  addScore(int points);
-    int   score()     const { return score_; }
-    int   highScore() const { return highScore_; }
+    void  addScore_(int points);
+    int   score_()     const { return mScore; }
+    int   highScore_() const { return mHighScore; }
 
-    void  loadHighScore();
-    void  saveHighScore();
-    void  reset();
+    void  loadHighScore_();
+    void  saveHighScore_();
+    void  reset_();
 
 private:
-    int score_;
-    int highScore_;
+    int mScore;
+    int mHighScore;
 };
 
 }  // namespace game

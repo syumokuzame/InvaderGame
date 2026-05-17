@@ -20,17 +20,17 @@ public:
     template<typename T, typename... Args>
     T* create(Args&&... args) {
         T* ptr = new T(std::forward<Args>(args)...);
-        entries_.push_back({ static_cast<void*>(ptr),
+        mEntries.push_back({ static_cast<void*>(ptr),
                              [](void* p){ delete static_cast<T*>(p); } });
         return ptr;
     }
 
     // 管理下の全オブジェクトを逆順で delete する
     void clear() {
-        for (auto it = entries_.rbegin(); it != entries_.rend(); ++it) {
+        for (auto it = mEntries.rbegin(); it != mEntries.rend(); ++it) {
             it->del(it->ptr);
         }
-        entries_.clear();
+        mEntries.clear();
     }
 
 private:
@@ -39,7 +39,7 @@ private:
         void (*del)(void*);
     };
 
-    std::vector<Entry> entries_;
+    std::vector<Entry> mEntries;
 };
 
 }  // namespace engine

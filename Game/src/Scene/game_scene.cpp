@@ -9,98 +9,98 @@ namespace game {
 
 GameScene::GameScene(engine::Allocator& allocator)
     : engine::SceneBase(allocator),
-      state_(GameState::Playing), level_(1), clearCounter_(0), lastAliveCount_(0) {
+      mState(GameState::Playing), mLevel(1), mClearCounter(0), mLastAliveCount(0) {
     // Player を Allocator 経由でヒープ確保（解放は Allocator が担う）
-    player_ = allocator_.create<Player>();
+    mPlayer = mAllocator.create<Player>();
 
     // 前シーンからのキー入力状態をリセット
-    input_.poll();
-    gameStartTime_ = std::time(nullptr);
-    for (const auto& inv : swarm_.invaders()) {
-        if (inv.isActive()) lastAliveCount_++;
+    mInput.poll_();
+    mGameStartTime = std::time(nullptr);
+    for (const auto& inv : mSwarm.invaders()) {
+        if (inv.isActive()) mLastAliveCount++;
     }
 }
 
-void GameScene::processInput() {
-    input_.poll();
+void GameScene::processInput_() {
+    mInput.poll_();
 
     // クールダウン中は入力を受け付けない
-    if (inputCooldown_ > 0) {
-        --inputCooldown_;
+    if (mInputCooldown > 0) {
+        --mInputCooldown;
         return;
     }
 
-    if (input_.isQuit())  { changeScene(engine::SceneType::Title); return; }
-    if (input_.isLeft())  player_->moveLeft();
-    if (input_.isRight()) player_->moveRight();
-    if (input_.isShoot()) {
-        if (player_->shoot()) {
-            bullets_.emplace_back(player_->x(), player_->y() - 1, BulletOwner::Player);
+    if (mInput.isQuit_())  { changeScene(engine::SceneType::Title); return; }
+    if (mInput.isLeft_())  mPlayer->moveLeft_();
+    if (mInput.isRight_()) mPlayer->moveRight_();
+    if (mInput.isShoot_()) {
+        if (mPlayer->shoot_()) {
+            mBullets.emplace_back(mPlayer->x(), mPlayer->y() - 1, BulletOwner::Player);
         }
     }
-    if (input_.isDebugKillAll()) {
-        debugKillAllInvaders();
+    if (mInput.isDebugKillAll_()) {
+        debugKillAllInvaders_();
     }
 }
 
 void GameScene::calc() {
-    processInput();
+    processInput_();
 
-    player_->calc();
+    mPlayer->calc();
 
-    for (auto& b : bullets_) {
+    for (auto& b : mBullets) {
         b.calc();
     }
 
-    if (state_ == GameState::Playing) {
-        swarm_.update(bullets_);
+    if (mState == GameState::Playing) {
+        mSwarm.update_(mBullets);
 
         int currentAliveCount = 0;
-        for (const auto& inv : swarm_.invaders()) {
+        for (const auto& inv : mSwarm.invaders()) {
             if (inv.isActive()) currentAliveCount++;
         }
-        int defeatedCount = lastAliveCount_ - currentAliveCount;
+        int defeatedCount = mLastAliveCount - currentAliveCount;
         if (defeatedCount > 0) {
-            scoreManager_.addScore(defeatedCount * 10);
+            mScoreManager.addScore_(defeatedCount * 10);
         }
-        lastAliveCount_ = currentAliveCount;
+        mLastAliveCount = currentAliveCount;
 
-        if (swarm_.allDefeated()) {
-            state_ = GameState::GameClear;
-            clearCounter_ = 0;
+        if (mSwarm.allDefeated_()) {
+            mState = GameState::GameClear;
+            mClearCounter = 0;
         }
-    } else if (state_ == GameState::GameClear) {
-        clearCounter_++;
-        if (clearCounter_ >= 60) {
-            swarm_.reset(level_);
-            lastAliveCount_ = 0;
-            for (const auto& inv : swarm_.invaders()) {
-                if (inv.isActive()) lastAliveCount_++;
+    } else if (mState == GameState::GameClear) {
+        mClearCounter++;
+        if (mClearCounter >= 60) {
+            mSwarm.reset_(mLevel);
+            mLastAliveCount = 0;
+            for (const auto& inv : mSwarm.invaders()) {
+                if (inv.isActive()) mLastAliveCount++;
             }
-            bullets_.clear();
-            player_->clearBullet();
-            state_ = GameState::Playing;
+            mBullets.clear();
+            mPlayer->clearBullet_();
+            mState = GameState::Playing;
         }
     }
 
-    bullets_.erase(
-        std::remove_if(bullets_.begin(), bullets_.end(),
+    mBullets.erase(
+        std::remove_if(mBullets.begin(), mBullets.end(),
             [this](const Bullet& b) {
                 if (!b.isActive()) {
                     if (b.owner() == BulletOwner::Player)
-                        player_->clearBullet();
+                        mPlayer->clearBullet_();
                     return true;
                 }
                 return false;
             }),
-        bullets_.end()
+        mBullets.end()
     );
 }
 
 void GameScene::draw(engine::Renderer& renderer) {
     std::time_t now = std::time(nullptr);
-    int elapsedSeconds = static_cast<int>(now - gameStartTime_);
-    renderer.drawHeader("InvaderGame", scoreManager_.score(), elapsedSeconds);
+    int elapsedSeconds = static_cast<int>(now - mGameStartTime);
+    renderer.drawHeader("InvaderGame", mScoreManager.score_(), elapsedSeconds);
     renderer.drawInstructions();
 
     for (int x = 0; x < Config::FIELD_WIDTH; ++x) {
@@ -112,23 +112,23 @@ void GameScene::draw(engine::Renderer& renderer) {
         renderer.draw(Config::FIELD_WIDTH - 1, y, '|');
     }
 
-    for (const auto& b : bullets_)
+    for (const auto& b : mBullets)
         b.draw(renderer);
 
-    swarm_.draw(renderer);
-    player_->draw(renderer);
+    mSwarm.draw_(renderer);
+    mPlayer->draw(renderer);
 
-    if (state_ == GameState::GameClear) {
+    if (mState == GameState::GameClear) {
         int msgY = Config::FIELD_HEIGHT / 2;
         int msgX = Config::FIELD_WIDTH / 2 - 2;
         renderer.drawString(msgX, msgY, "CLEAR!");
     }
 }
 
-void GameScene::debugKillAllInvaders() {
-    for (auto& inv : swarm_.invaders()) {
-        if (!inv.isFullyDead()) {
-            inv.kill();
+void GameScene::debugKillAllInvaders_() {
+    for (auto& inv : mSwarm.invaders()) {
+        if (!inv.isFullyDead_()) {
+            inv.kill_();
         }
     }
 }

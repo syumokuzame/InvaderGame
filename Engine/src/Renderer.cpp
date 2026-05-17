@@ -20,12 +20,12 @@ Renderer::Renderer() {
     if (!GetConsoleScreenBufferInfo(hOut, &csbi)) {
         throw std::runtime_error("Failed to get console screen buffer info");
     }
-    originalBufferSize = csbi.dwSize;
-    originalWindowRect = csbi.srWindow;
-    originalAttributes = csbi.wAttributes;
-    currentBufferSize  = csbi.dwSize;
+    mOriginalBufferSize = csbi.dwSize;
+    mOriginalWindowRect = csbi.srWindow;
+    mOriginalAttributes = csbi.wAttributes;
+    mCurrentBufferSize  = csbi.dwSize;
 
-    if (!GetConsoleCursorInfo(hOut, &originalCursorInfo)) {
+    if (!GetConsoleCursorInfo(hOut, &mOriginalCursorInfo)) {
         throw std::runtime_error("Failed to get console cursor info");
     }
 
@@ -35,7 +35,7 @@ Renderer::Renderer() {
     if (!SetConsoleScreenBufferSize(hOut, bufSize)) {
         bufSize = csbi.dwSize;
     } else {
-        currentBufferSize = bufSize;
+        mCurrentBufferSize = bufSize;
     }
 
     SMALL_RECT winRect = { 0, 0,
@@ -74,13 +74,13 @@ void Renderer::clearGameArea() {
     COORD origin = { 0, 0 };
     DWORD written;
     FillConsoleOutputCharacterA(hOut, ' ', size, origin, &written);
-    FillConsoleOutputAttribute(hOut, originalAttributes, size, origin, &written);
+    FillConsoleOutputAttribute(hOut, mOriginalAttributes, size, origin, &written);
     SetConsoleCursorPosition(hOut, origin);
 }
 
 void Renderer::restoreConsoleSettings() {
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    SetConsoleCursorInfo(hOut, &originalCursorInfo);
+    SetConsoleCursorInfo(hOut, &mOriginalCursorInfo);
 }
 
 void Renderer::clear() {

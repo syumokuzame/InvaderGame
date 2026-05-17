@@ -17,14 +17,14 @@ public:
     virtual void calc() = 0;
     virtual void draw(Renderer& renderer) const = 0;
 
-    int x() const { return x_; }
-    int y() const { return y_; }
+    int x() const { return mX; }
+    int y() const { return mY; }
 
     virtual bool isActive() const = 0;
 
 protected:
-    int x_;
-    int y_;
+    int mX;
+    int mY;
 };
 
 }  // namespace engine

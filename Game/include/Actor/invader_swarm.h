@@ -14,24 +14,24 @@ class InvaderSwarm {
 public:
     InvaderSwarm();
 
-    void reset(int level);    // レベルに応じて速度・頻度を設定
-    void update(std::vector<Bullet>& bullets);
-    void draw(engine::Renderer& renderer) const;
+    void reset_(int level);    // レベルに応じて速度・頻度を設定
+    void update_(std::vector<Bullet>& bullets);
+    void draw_(engine::Renderer& renderer) const;
 
-    bool allDefeated() const;
-    bool hasReachedBottom() const;
+    bool allDefeated_() const;
+    bool hasReachedBottom_() const;
 
-    std::vector<Invader>& invaders() { return invaders_; }
+    std::vector<Invader>& invaders() { return mInvaders; }
 
 private:
-    std::vector<Invader> invaders_;
-    int  dx_;          // 横移動方向 (+1 or -1)
-    int  speed_;       // 移動間隔（フレーム数）
-    int  timer_;
-    int  shootInterval_;
-    int  shootTimer_;
+    std::vector<Invader> mInvaders;
+    int  mDx;          // 横移動方向 (+1 or -1)
+    int  mSpeed;       // 移動間隔（フレーム数）
+    int  mTimer;
+    int  mShootInterval;
+    int  mShootTimer;
 
-    void moveDown();
+    void moveDown_();
 };
 
 }  // namespace game

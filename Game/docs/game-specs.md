@@ -98,6 +98,22 @@
 - **内容**:
   - `engine::FrameWork` が `std::vector<ActorBase*> actors_` を保持し、全シーンで共有するメモリプール
   - `engine::SceneBase` のコンストラクタで `actors_` への参照を受け取る
+
+### [2026-05-17] コーディングルール適用
+- **対象ファイル**: 
+  - Engine層: `Engine/include/ActorBase.h`, `Engine/include/SceneBase.h`, `Engine/include/FrameWork.h`, `Engine/include/Renderer.h`, `Engine/include/Allocator.h`、およびそれらの実装ファイル（.cpp）
+  - Game層: 全Actor・Scene関連ヘッダ・実装ファイル、InputHandler、ScoreManager、メインファイル
+- **内容**:
+  - **メンバ変数**: `m + キャメルケース（大文字始まり）` に統一
+    - 例: `x_` → `mX`、`lives_` → `mLives`、`state_` → `mState`
+  - **関数名**: キャメルケース（小文字始まり）に統一
+  - **メンバ関数名の層別ルール**:
+    - Engine層のメンバ関数: キャメルケース（小文字始まり）のみ
+    - Game層のみのメンバ関数: キャメルケース + 末尾に `_` を追記
+      - 例: `moveLeft()` → `moveLeft_()`、`addScore()` → `addScore_()`、`poll()` → `poll_()`
+- **修正ファイル数**: 25+ ファイル（全ヘッダ・実装ファイル）
+- **コンパイル結果**: ✅ 成功（終了コード 0）
+
   - `SceneBase` に `updateActors()`（全actor→calc()）、`drawActors()`（全actor→draw()）、`clearActors()`（全actor削除）を追加
   - `game::GameScene` のコンストラクタで `Player* player_ = new Player()` を実施し、`actors_.push_back(player_)`
   - `game::main.cpp` で actor vector を main スコープで定義、lambda factory でそれを参照

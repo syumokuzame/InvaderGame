@@ -6,29 +6,29 @@ namespace game {
 
 Bullet::Bullet(int x, int y, BulletOwner owner)
     : Actor(x, y),
-      dy_(owner == BulletOwner::Player ? -1 : 1),
-      active_(true),
-      owner_(owner) {}
+      mDy(owner == BulletOwner::Player ? -1 : 1),
+      mActive(true),
+      mOwner(owner) {}
 
 void Bullet::calc() {
-    if (!active_) return;
-    y_ += dy_;
+    if (!mActive) return;
+    mY += mDy;
     // フィールド枠（上枠=UI_HEIGHT+1、下枠=FIELD_HEIGHT-1）に到達したら無効化
-    if (y_ <= Config::UI_HEIGHT || y_ >= Config::FIELD_HEIGHT - 1)
-        active_ = false;
+    if (mY <= Config::UI_HEIGHT || mY >= Config::FIELD_HEIGHT - 1)
+        mActive = false;
 }
 
 void Bullet::draw(engine::Renderer& renderer) const {
-    if (!active_) return;
-    renderer.draw(x_, y_, '|');
+    if (!mActive) return;
+    renderer.draw(mX, mY, '|');
 }
 
-void Bullet::deactivate() {
-    active_ = false;
+void Bullet::deactivate_() {
+    mActive = false;
 }
 
 bool Bullet::isActive() const {
-    return active_;
+    return mActive;
 }
 
 }  // namespace game

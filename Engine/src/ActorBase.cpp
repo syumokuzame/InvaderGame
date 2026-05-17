@@ -3,7 +3,7 @@
 namespace engine {
 
 ActorBase::ActorBase(int x, int y)
-    : x_(x), y_(y) {
+    : mX(x), mY(y) {
 }
 
 }  // namespace engine

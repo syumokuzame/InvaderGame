@@ -19,18 +19,18 @@ public:
     // Game層からシーン生成関数を登録する（Allocatorも渡す）
     using SceneFactory = std::function<SceneBase*(SceneType, Allocator&)>;
     void setSceneFactory(SceneFactory factory) {
-        sceneFactory_ = std::move(factory);
+        mSceneFactory = std::move(factory);
     }
 
     // 最初のシーン種別を指定してゲームループを開始する
     void run(SceneType initialScene);
 
 private:
-    SceneBase*   scene_;
-    Renderer     renderer_;
-    int          frameMs_;
-    SceneFactory sceneFactory_;
-    Allocator    allocator_;  // 全シーンで共有するヒープ管理
+    SceneBase*   mScene;
+    Renderer     mRenderer;
+    int          mFrameMs;
+    SceneFactory mSceneFactory;
+    Allocator    mAllocator;  // 全シーンで共有するヒープ管理
 };
 
 }  // namespace engine

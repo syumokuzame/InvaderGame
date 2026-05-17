@@ -20,11 +20,11 @@ public:
     void showCursor();
 
 private:
-    COORD originalBufferSize;
-    SMALL_RECT originalWindowRect;
-    CONSOLE_CURSOR_INFO originalCursorInfo;
-    WORD originalAttributes;
-    COORD currentBufferSize;
+    COORD mOriginalBufferSize;
+    SMALL_RECT mOriginalWindowRect;
+    CONSOLE_CURSOR_INFO mOriginalCursorInfo;
+    WORD mOriginalAttributes;
+    COORD mCurrentBufferSize;
 
     void fullClear();
     void clearGameArea();

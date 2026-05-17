@@ -8,30 +8,30 @@ namespace game {
 TitleScene::TitleScene(engine::Allocator& allocator)
     : engine::SceneBase(allocator) {
     // 前シーンからのキー入力状態をリセット
-    input_.poll();
+    mInput.poll_();
 }
 
 void TitleScene::calc() {
-    input_.poll();
+    mInput.poll_();
 
     // クールダウン中は入力を受け付けない
-    if (inputCooldown_ > 0) {
-        --inputCooldown_;
-        ++frameCount_;
+    if (mInputCooldown > 0) {
+        --mInputCooldown;
+        ++mFrameCount;
         return;
     }
 
-    if (input_.isQuit()) {
+    if (mInput.isQuit_()) {
         quit();
         return;
     }
 
-    if (input_.isEnter()) {
+    if (mInput.isEnter_()) {
         changeScene(engine::SceneType::Game);
         return;
     }
 
-    ++frameCount_;
+    ++mFrameCount;
 }
 
 void TitleScene::draw(engine::Renderer& renderer) {
@@ -42,7 +42,7 @@ void TitleScene::draw(engine::Renderer& renderer) {
     renderer.drawString(cx - 9, cy - 2, "======================");
 
     // Press ENTER 点滅（60フレームサイクル）
-    if ((frameCount_ / 30) % 2 == 0) {
+    if ((mFrameCount / 30) % 2 == 0) {
         renderer.drawString(cx - 9, cy, "  Press ENTER to Start  ");
     }
 

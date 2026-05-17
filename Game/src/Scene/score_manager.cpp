@@ -5,36 +5,36 @@
 namespace game {
 
 ScoreManager::ScoreManager()
-    : score_(0), highScore_(0) {
-    loadHighScore();
+    : mScore(0), mHighScore(0) {
+    loadHighScore_();
 }
 
-void ScoreManager::addScore(int points) {
-    score_ += points;
-    if (score_ > highScore_) {
-        highScore_ = score_;
-        saveHighScore();
+void ScoreManager::addScore_(int points) {
+    mScore += points;
+    if (mScore > mHighScore) {
+        mHighScore = mScore;
+        saveHighScore_();
     }
 }
 
-void ScoreManager::loadHighScore() {
+void ScoreManager::loadHighScore_() {
     std::ifstream file(Config::HIGHSCORE_FILE, std::ios::binary);
     if (file.is_open()) {
-        file.read(reinterpret_cast<char*>(&highScore_), sizeof(int));
+        file.read(reinterpret_cast<char*>(&mHighScore), sizeof(int));
         file.close();
     }
 }
 
-void ScoreManager::saveHighScore() {
+void ScoreManager::saveHighScore_() {
     std::ofstream file(Config::HIGHSCORE_FILE, std::ios::binary);
     if (file.is_open()) {
-        file.write(reinterpret_cast<const char*>(&highScore_), sizeof(int));
+        file.write(reinterpret_cast<const char*>(&mHighScore), sizeof(int));
         file.close();
     }
 }
 
-void ScoreManager::reset() {
-    score_ = 0;
+void ScoreManager::reset_() {
+    mScore = 0;
 }
 
 }  // namespace game

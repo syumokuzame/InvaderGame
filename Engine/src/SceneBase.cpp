@@ -3,7 +3,7 @@
 namespace engine {
 
 SceneBase::SceneBase(Allocator& allocator)
-    : allocator_(allocator) {}
+    : mAllocator(allocator) {}
 
 }  // namespace engine
 

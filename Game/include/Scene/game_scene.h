@@ -24,21 +24,21 @@ public:
     void draw(engine::Renderer& renderer) override;
 
 private:
-    void processInput();
-    void debugKillAllInvaders();
+    void processInput_();
+    void debugKillAllInvaders_();
 
-    GameState    state_;
-    int          level_;
-    std::time_t  gameStartTime_;
-    int          clearCounter_;
-    int          lastAliveCount_;
-    int          inputCooldown_  = 30;  // 入力受け付けクールダウン（フレーム）
+    GameState    mState;
+    int          mLevel;
+    std::time_t  mGameStartTime;
+    int          mClearCounter;
+    int          mLastAliveCount;
+    int          mInputCooldown  = 30;  // 入力受け付けクールダウン（フレーム）
 
-    Player*      player_;           // ヒープ確保（Allocator管理）
-    InputHandler input_;
-    ScoreManager scoreManager_;
-    std::vector<Bullet> bullets_;   // ローカル管理
-    InvaderSwarm swarm_;
+    Player*      mPlayer;           // ヒープ確保（Allocator管理）
+    InputHandler mInput;
+    ScoreManager mScoreManager;
+    std::vector<Bullet> mBullets;   // ローカル管理
+    InvaderSwarm mSwarm;
 };
 
 }  // namespace game

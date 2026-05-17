@@ -20,31 +20,31 @@ public:
     virtual void calc() = 0;
     virtual void draw(Renderer& renderer) = 0;
 
-    bool isRunning() const { return running_; }
+    bool isRunning() const { return mRunning; }
 
-    SceneType getNextSceneType() const { return nextSceneType_; }
+    SceneType getNextSceneType() const { return mNextSceneType; }
 
-    bool hasNextScene() const { return hasNextScene_; }
+    bool hasNextScene() const { return mHasNextScene; }
 
     void clearNextScene() {
-        hasNextScene_ = false;
-        nextSceneType_ = SceneType::Title;
+        mHasNextScene = false;
+        mNextSceneType = SceneType::Title;
     }
 
 protected:
-    void quit() { running_ = false; }
+    void quit() { mRunning = false; }
 
     void changeScene(SceneType type) {
-        hasNextScene_ = true;
-        nextSceneType_ = type;
+        mHasNextScene = true;
+        mNextSceneType = type;
     }
 
-    Allocator& allocator_;
+    Allocator& mAllocator;
 
 private:
-    bool      running_       = true;
-    bool      hasNextScene_  = false;
-    SceneType nextSceneType_ = SceneType::Title;
+    bool      mRunning       = true;
+    bool      mHasNextScene  = false;
+    SceneType mNextSceneType = SceneType::Title;
 };
 
 }  // namespace engine

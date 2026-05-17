@@ -6,13 +6,13 @@
 namespace game {
 
 InvaderSwarm::InvaderSwarm()
-    : dx_(1), speed_(20), timer_(0), shootInterval_(60), shootTimer_(0) {
-    reset(1);
+    : mDx(1), mSpeed(20), mTimer(0), mShootInterval(60), mShootTimer(0) {
+    reset_(1);
 }
 
-void InvaderSwarm::reset(int level) {
+void InvaderSwarm::reset_(int level) {
     (void)level;
-    invaders_.clear();
+    mInvaders.clear();
 
     // 敵機のサイズ定数
     constexpr int INVADER_WIDTH = 3;   // 敵の幅 (中心 ± 1)
@@ -52,50 +52,50 @@ void InvaderSwarm::reset(int level) {
         for (int col = 0; col < actual_cols; ++col) {
             int x = start_x + col * slot_width;
             int y = start_y + row * slot_height;
-            invaders_.emplace_back(x, y, row);
+            mInvaders.emplace_back(x, y, row);
             // 敵を即座にスポーン状態にする
-            invaders_.back().spawn();
+            mInvaders.back().spawn_();
         }
     }
 }
 
-void InvaderSwarm::update(std::vector<Bullet>& bullets) {
+void InvaderSwarm::update_(std::vector<Bullet>& bullets) {
     // 消滅アニメを進める
-    for (auto& inv : invaders_) {
+    for (auto& inv : mInvaders) {
         inv.calc();
     }
 
     // プレイヤー弾との当たり判定
     for (auto& b : bullets) {
         if (b.owner() != BulletOwner::Player || !b.isActive()) continue;
-        for (auto& inv : invaders_) {
-            if (!inv.isAlive()) continue;
+        for (auto& inv : mInvaders) {
+            if (!inv.isAlive_()) continue;
             // 敵機は4マス: (x-1,y), (x,y), (x+1,y), (x,y+1)
             if ((b.x() == inv.x() - 1 && b.y() == inv.y()) ||
                 (b.x() == inv.x() && b.y() == inv.y()) ||
                 (b.x() == inv.x() + 1 && b.y() == inv.y()) ||
                 (b.x() == inv.x() && b.y() == inv.y() + 1)) {
-                inv.kill();
-                b.deactivate();
+                inv.kill_();
+                b.deactivate_();
                 break;
             }
         }
     }
 
     // 消滅アニメが終わったインベーダーを除去
-    invaders_.erase(
-        std::remove_if(invaders_.begin(), invaders_.end(),
-            [](const Invader& inv) { return inv.isFullyDead(); }),
-        invaders_.end()
+    mInvaders.erase(
+        std::remove_if(mInvaders.begin(), mInvaders.end(),
+            [](const Invader& inv) { return inv.isFullyDead_(); }),
+        mInvaders.end()
     );
 
     // 敵機の移動
-    if (invaders_.empty()) return;
+    if (mInvaders.empty()) return;
 
     // 生存している敵機の左右の端を計算
     int minX = Config::FIELD_WIDTH, maxX = 0;
-    for (const auto& inv : invaders_) {
-        if (!inv.isAlive()) continue;
+    for (const auto& inv : mInvaders) {
+        if (!inv.isAlive_()) continue;
         minX = (inv.x() - 1 < minX) ? (inv.x() - 1) : minX;  // 左端
         maxX = (inv.x() + 1 > maxX) ? (inv.x() + 1) : maxX;  // 右端
     }
@@ -105,41 +105,41 @@ void InvaderSwarm::update(std::vector<Bullet>& bullets) {
     const int RIGHT_BOUND = Config::FIELD_WIDTH - 2;  // 右壁の左側
 
     // タイマーをカウント
-    ++timer_;
-    if (timer_ >= speed_) {
-        timer_ = 0;
+    ++mTimer;
+    if (mTimer >= mSpeed) {
+        mTimer = 0;
 
         // 方向変更チェック（枠に到達したか）
-        if ((dx_ > 0 && maxX >= RIGHT_BOUND) ||
-            (dx_ < 0 && minX <= LEFT_BOUND)) {
-            dx_ = -dx_;  // 方向を反転
+        if ((mDx > 0 && maxX >= RIGHT_BOUND) ||
+            (mDx < 0 && minX <= LEFT_BOUND)) {
+            mDx = -mDx;  // 方向を反転
         }
 
         // 全敵機を移動
-        for (auto& inv : invaders_) {
-            if (!inv.isAlive()) continue;
-            inv.setPos(inv.x() + dx_, inv.y());
+        for (auto& inv : mInvaders) {
+            if (!inv.isAlive_()) continue;
+            inv.setPos_(inv.x() + mDx, inv.y());
         }
     }
 }
 
-void InvaderSwarm::draw(engine::Renderer& renderer) const {
-    for (const auto& inv : invaders_) {
+void InvaderSwarm::draw_(engine::Renderer& renderer) const {
+    for (const auto& inv : mInvaders) {
         inv.draw(renderer);
     }
 }
 
-bool InvaderSwarm::allDefeated() const {
-    for (const auto& inv : invaders_) {
-        if (!inv.isFullyDead()) return false;  // スポーン中・生存中・消滅アニメ中のどれかがいれば false
+bool InvaderSwarm::allDefeated_() const {
+    for (const auto& inv : mInvaders) {
+        if (!inv.isFullyDead_()) return false;  // スポーン中・生存中・消滅アニメ中のどれかがいれば false
     }
-    return true;  // invaders_ が空、または全て完全消滅の場合のみ true
+    return true;  // mInvaders が空、または全て完全消滅の場合のみ true
 }
 
-bool InvaderSwarm::hasReachedBottom() const {
-    for (const auto& inv : invaders_) {
+bool InvaderSwarm::hasReachedBottom_() const {
+    for (const auto& inv : mInvaders) {
         // 敵は y と y+1 の2行占めるため、y+1がプレイヤーレベル以上なら判定
-        if (inv.isAlive() && inv.y() + 1 >= Config::FIELD_HEIGHT - 2)
+        if (inv.isAlive_() && inv.y() + 1 >= Config::FIELD_HEIGHT - 2)
             return true;
     }
     return false;
