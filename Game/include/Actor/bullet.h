@@ -11,8 +11,12 @@ public:
     Bullet(int x, int y, BulletOwner owner);
 
     void calc() override;
-    void draw() const override;
     bool isActive() const override;
+
+    // 弾は Bullet レイヤーで描画
+    int drawLayer() const override {
+        return static_cast<int>(engine::RenderLayer::Bullet);
+    }
 
     BulletOwner owner() const { return mOwner; }
 

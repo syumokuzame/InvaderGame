@@ -1,5 +1,8 @@
 #pragma once
 
+#include "ActorModel.h"
+#include "RenderQueue.h"
+
 namespace engine {
 
 /**
@@ -13,8 +16,11 @@ public:
     virtual ~ActorBase() = default;
 
     virtual void calc() = 0;
-    // RenderQueue::instance() に描画コマンドを登録する
-    virtual void draw() const = 0;
+
+    // デフォルト実装: mModel を RenderQueue に submitModel() で登録する
+    // calc() 内で mModel を更新することでアニメーションを実現する
+    // オーバーライドも可能
+    virtual void draw() const;
 
     int x() const { return mX; }
     int y() const { return mY; }
@@ -24,6 +30,12 @@ public:
 protected:
     int mX;
     int mY;
+
+    // 描画モデル（calc() 内で更新する）
+    ActorModel mModel;
+
+    // 描画レイヤー（サブクラスでオーバーライド可能）
+    virtual int drawLayer() const { return static_cast<int>(RenderLayer::Actor); }
 };
 
 }  // namespace engine

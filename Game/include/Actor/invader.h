@@ -9,7 +9,7 @@ public:
     Invader(int x, int y, int row);
 
     void calc() override;   // 消滅アニメを1フレーム進める
-    void draw() const override;
+
     bool isActive() const override;
 
     bool isAlive_()     const { return mAlive; }

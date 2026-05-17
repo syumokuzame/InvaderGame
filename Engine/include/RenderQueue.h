@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ActorModel.h"
 #include <vector>
 #include <string>
 
@@ -32,6 +33,12 @@ public:
     void submitString(int x, int y, const char* str,
                       int layer = static_cast<int>(RenderLayer::UI));
 
+    // Actorモデルの描画登録
+    // model.cells[row][col] を 2D 展開して登録する
+    // ' ' (スペース) は透過（後ろの描画を上書きしない）
+    void submitModel(int x, int y, const ActorModel& model,
+                     int layer = static_cast<int>(RenderLayer::Actor));
+
     // フレーム末に呼ぶ：layer 昇順でソートして Renderer へ一括書き込み
     void flush(Renderer& renderer);
 
@@ -44,7 +51,14 @@ private:
         int         layer;
     };
 
-    std::vector<Command> mCommands;
+    struct ModelCommand {
+        int        x, y;
+        ActorModel model;  // コピーして保持
+        int        layer;
+    };
+
+    std::vector<Command>      mCommands;
+    std::vector<ModelCommand> mModelCommands;
 };
 
 }  // namespace engine

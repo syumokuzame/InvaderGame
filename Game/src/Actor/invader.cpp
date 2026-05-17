@@ -1,10 +1,6 @@
 #include "Actor/invader.h"
-#include "RenderQueue.h"
 
 namespace game {
-
-// 行ごとの生存時キャラクター（上段=M, 中段=W, 下段=V）
-static constexpr char ROW_CHARS[] = { 'M', 'W', 'V' };
 
 Invader::Invader(int x, int y, int row)
     : Actor(x, y), mRow(row), mAlive(false), mDeathTimer(0), mSpawnFrame(0) {}
@@ -16,10 +12,45 @@ void Invader::calc() {
         if (mSpawnFrame >= SPAWN_FRAMES) {
             mAlive = true;  // スポーン完了→有効化
         }
+        // スポーンアニメーションのモデル更新
+        // pivot=(1,0) → mX が中央
+        const char spawnChars[] = { '.', 'o', 'O', '*' };
+        char ch = spawnChars[(mSpawnFrame - 1) / 2];
+        std::string top(3, ch);     // "***" など
+        std::string bot = " ";
+        bot += ch;
+        bot += " ";                 // " * "
+        mModel.cells  = { top, bot };
+        mModel.pivotX = 1;
+        mModel.pivotY = 0;
         return;
     }
+
     // スポーン完了後：消滅アニメ処理
     if (mDeathTimer > 0) --mDeathTimer;
+
+    // モデル更新
+    if (mAlive) {
+        // 生存時：Tミノ形 (pivot=(1,0))
+        mModel.cells  = { "***", " * " };
+        mModel.pivotX = 1;
+        mModel.pivotY = 0;
+    } else if (mDeathTimer > DEATH_FRAMES * 2 / 3) {
+        mModel.cells  = { "***", " * " };
+        mModel.pivotX = 1;
+        mModel.pivotY = 0;
+    } else if (mDeathTimer > DEATH_FRAMES / 3) {
+        mModel.cells  = { "+++", " + " };
+        mModel.pivotX = 1;
+        mModel.pivotY = 0;
+    } else if (mDeathTimer > 0) {
+        mModel.cells  = { "...", " . " };
+        mModel.pivotX = 1;
+        mModel.pivotY = 0;
+    } else {
+        // 完全消滅（モデルを空に）
+        mModel.cells = {};
+    }
 }
 
 void Invader::kill_() {
@@ -44,53 +75,6 @@ int Invader::scoreValue_() const {
         case 1: return 20;  // 中段
         default: return 10; // 下段
     }
-}
-
-// 敵機のサイズ定数
-static constexpr int INVADER_WIDTH = 3;   // 敵の幅: 3 (中心-1 から 中心+1)
-static constexpr int INVADER_HEIGHT = 2;  // 敵の高さ: 2 行
-
-void Invader::draw() const {
-    auto& rq = engine::RenderQueue::instance();
-    // スポーン中：アニメーション表現
-    if (mSpawnFrame < SPAWN_FRAMES) {
-        char spawnChars[] = { '.', 'o', 'O', '*' };
-        char ch = spawnChars[mSpawnFrame / 2];
-        rq.submit(mX - 1, mY, ch);
-        rq.submit(mX, mY, ch);
-        rq.submit(mX + 1, mY, ch);
-        rq.submit(mX, mY + 1, ch);
-        return;
-    }
-    // スポーン完了後：敵機表示
-    if (mAlive) {
-        // 敵機をTミノ形で描画（上向き）
-        // 上行: 左-中-右
-        rq.submit(mX - 1, mY, '*');
-        rq.submit(mX, mY, '*');
-        rq.submit(mX + 1, mY, '*');
-        // 下行: 中心
-        rq.submit(mX, mY + 1, '*');
-        return;
-    }
-    // 消滅アニメーション（3段階: * → + → .）
-    if (mDeathTimer > DEATH_FRAMES * 2 / 3) {
-        rq.submit(mX - 1, mY, '*');
-        rq.submit(mX, mY, '*');
-        rq.submit(mX + 1, mY, '*');
-        rq.submit(mX, mY + 1, '*');
-    } else if (mDeathTimer > DEATH_FRAMES / 3) {
-        rq.submit(mX - 1, mY, '+');
-        rq.submit(mX, mY, '+');
-        rq.submit(mX + 1, mY, '+');
-        rq.submit(mX, mY + 1, '+');
-    } else if (mDeathTimer > 0) {
-        rq.submit(mX - 1, mY, '.');
-        rq.submit(mX, mY, '.');
-        rq.submit(mX + 1, mY, '.');
-        rq.submit(mX, mY + 1, '.');
-    }
-    // mDeathTimer == 0: 完全消滅（何も描画しない）
 }
 
 bool Invader::isActive() const {

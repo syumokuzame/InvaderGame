@@ -118,3 +118,23 @@
   - `game::GameScene` のコンストラクタで `Player* player_ = new Player()` を実施し、`actors_.push_back(player_)`
   - `game::main.cpp` で actor vector を main スコープで定義、lambda factory でそれを参照
   - **メリット**: Actor のライフサイクル管理がFramework統一、シーン遷移時の自動クリーンアップ、メモリリーク防止
+
+### [2026-05-17] RenderQueue パターン導入 — 描画の一括フラッシュ方式に変更
+- **対象ファイル**:
+  - `Engine/include/RenderQueue.h`（新規作成）
+  - `Engine/src/RenderQueue.cpp`（新規作成）
+  - `Engine/include/ActorBase.h`（draw() シグネチャ変更）
+  - `Engine/include/SceneBase.h`（draw() シグネチャ変更）
+  - `Engine/src/FrameWork.cpp`（描画ループ修正）
+  - Game層: `Game/src/Actor/player.cpp`, `bullet.cpp`, `invader.cpp`, `invader_swarm.cpp`
+  - Game層: `Game/src/Scene/game_scene.cpp`, `title_scene.cpp`
+  - Game層: 上記に対応する全ヘッダ
+- **内容**:
+  - `engine::RenderQueue` をシングルトンで新設。`submit(x, y, ch, layer)` / `submitString(x, y, str, layer)` で描画コマンドをキューに蓄積し、`flush(Renderer&)` でレイヤー昇順ソート後に一括書き込み
+  - `engine::RenderLayer` enum class を追加（Background=0, Actor=10, Bullet=20, UI=30）
+  - `ActorBase::draw(Renderer&)` → `draw()` に変更。内部で `RenderQueue::instance().submit()` を呼ぶ
+  - `SceneBase::draw(Renderer&)` → `draw()` に変更
+  - `FrameWork::run()` の描画処理を `clear() → draw() → flush() → present()` の順に変更
+  - `drawHeader()` / `drawInstructions()` 等の Renderer 直接呼び出しを `submitString()` 経由に統一。スコア・時刻などの動的文字列は `std::string` で内部コピーするためダングリング問題なし
+- **メリット**: 描画の z-order 制御が可能になり、将来的にエフェクトや重ね描画の拡張が容易
+

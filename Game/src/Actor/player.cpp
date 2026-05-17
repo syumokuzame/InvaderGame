@@ -1,5 +1,4 @@
 #include "Actor/player.h"
-#include "RenderQueue.h"
 #include "config.h"
 
 namespace game {
@@ -61,39 +60,31 @@ void Player::calc() {
     if (mMoveFrame > 0) {
         --mMoveFrame;
     }
-}
 
-// 自機を3文字で描画
-void Player::draw() const {
-    auto& rq = engine::RenderQueue::instance();
-    // 射撃アニメーション中は中央が '|' に変わる
+    // アニメーション状態に応じてモデルを更新
+    // pivot は常に (1, 0) = mX が '^' や '|' の位置
     if (mShootFrame > 0) {
-        rq.submit(mX - 1, mY, '<');
-        rq.submit(mX,     mY, '|');
-        rq.submit(mX + 1, mY, '>');
-    }
-    // 移動アニメーション中は傾いた表現
-    else if (mMoveFrame > 0) {
-        if (mLastDirection == -1) {
-            // 左移動時：左に傾く表現
-            rq.submit(mX - 1, mY, '<');
-            rq.submit(mX,     mY, '^');
-            rq.submit(mX + 1, mY, '>');
-            rq.submit(mX + 2, mY, '>');
-            rq.submit(mX + 3, mY, '.');
-        } else if (mLastDirection == 1) {
-            // 右移動時：右に傾く表現
-            rq.submit(mX - 3, mY, '.');
-            rq.submit(mX - 2, mY, '<');
-            rq.submit(mX - 1, mY, '<');
-            rq.submit(mX,     mY, '^');
-            rq.submit(mX + 1, mY, '>');
-        }
+        // 射撃中：中央が '|'
+        mModel.cells  = { "<|>" };
+        mModel.pivotX = 1;
+        mModel.pivotY = 0;
+    } else if (mMoveFrame > 0 && mLastDirection == -1) {
+        // 左移動中：右側に噴射炎
+        //   pivot=1 → mX が '^' の位置、右に ">>." が続く
+        mModel.cells  = { "<^>>." };
+        mModel.pivotX = 1;
+        mModel.pivotY = 0;
+    } else if (mMoveFrame > 0 && mLastDirection == 1) {
+        // 右移動中：左側に噴射炎
+        //   pivot=3 → mX が '^' の位置、左に ".<<" が続く
+        mModel.cells  = { ".<<^>" };
+        mModel.pivotX = 3;
+        mModel.pivotY = 0;
     } else {
         // 通常状態
-        rq.submit(mX - 1, mY, '<');
-        rq.submit(mX,     mY, '^');
-        rq.submit(mX + 1, mY, '>');
+        mModel.cells  = { "<^>" };
+        mModel.pivotX = 1;
+        mModel.pivotY = 0;
     }
 }
 
