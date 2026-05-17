@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Allocator.h"
+#include "UIBase.h"
+#include <memory>
+#include <vector>
 
 namespace engine {
 
@@ -38,12 +41,22 @@ protected:
         mNextSceneType = type;
     }
 
+    // UIを追加し生ポインタを返す（所有権はmUIs_が持つ）
+    // 返り値でGameScene等が特定UIへの参照を保持できる
+    UIBase* addUI_(std::unique_ptr<UIBase> ui);
+
+    // 全UIのcalc/drawを一括処理（SceneBaseサブクラスのcalc/drawから呼ぶ）
+    void calcUIs_();
+    void drawUIs_();
+
     Allocator& mAllocator;
 
 private:
     bool      mRunning       = true;
     bool      mHasNextScene  = false;
     SceneType mNextSceneType = SceneType::Title;
+
+    std::vector<std::unique_ptr<UIBase>> mUIs_;
 };
 
 }  // namespace engine

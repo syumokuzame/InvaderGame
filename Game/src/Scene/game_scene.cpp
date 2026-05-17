@@ -4,8 +4,6 @@
 #include "config.h"
 #include <algorithm>
 #include <ctime>
-#include <cstdio>
-
 namespace game {
 
 GameScene::GameScene(engine::Allocator& allocator)
@@ -20,6 +18,18 @@ GameScene::GameScene(engine::Allocator& allocator)
     for (const auto& inv : mSwarm.invaders()) {
         if (inv.isActive()) mLastAliveCount++;
     }
+
+    // UI 登録（所有権は SceneBase::mUIs_ が管理）
+    addUI_(std::make_unique<engine::UIBase>(1, 0, "InvaderGame"));
+    addUI_(std::make_unique<engine::UIBase>(
+        2, 1, "LEFT/RIGHT: Move  SPACE: Shoot  P: Pause  Q: Quit"));
+    addUI_(std::make_unique<ScoreUI>(Config::FIELD_WIDTH - 30, 0, mScoreManager));
+    addUI_(std::make_unique<TimerUI>(Config::FIELD_WIDTH - 8, 0, mGameStartTime));
+
+    const int msgX = Config::FIELD_WIDTH / 2 - 3;
+    const int msgY = Config::FIELD_HEIGHT / 2;
+    mClearMessageUI = addUI_(std::make_unique<engine::UIBase>(msgX, msgY, "CLEAR!"));
+    mClearMessageUI->setVisible(false);
 }
 
 void GameScene::processInput_() {
@@ -69,6 +79,7 @@ void GameScene::calc() {
         if (mSwarm.allDefeated_()) {
             mState = GameState::GameClear;
             mClearCounter = 0;
+            mClearMessageUI->setVisible(true);
         }
     } else if (mState == GameState::GameClear) {
         mClearCounter++;
@@ -80,9 +91,12 @@ void GameScene::calc() {
             }
             mBullets.clear();
             mPlayer->clearBullet_();
+            mClearMessageUI->setVisible(false);
             mState = GameState::Playing;
         }
     }
+
+    calcUIs_();
 
     mBullets.erase(
         std::remove_if(mBullets.begin(), mBullets.end(),
@@ -100,25 +114,7 @@ void GameScene::calc() {
 
 void GameScene::draw() {
     auto& rq = engine::RenderQueue::instance();
-    const int uiLayer = static_cast<int>(engine::RenderLayer::UI);
     const int bgLayer = static_cast<int>(engine::RenderLayer::Background);
-
-    // ヘッダー（UI レイヤー）
-    std::time_t now = std::time(nullptr);
-    int elapsedSeconds = static_cast<int>(now - mGameStartTime);
-    rq.submitString(1, 0, "InvaderGame", uiLayer);
-
-    char scoreBuf[32];
-    sprintf_s(scoreBuf, sizeof(scoreBuf), "Score: %d", mScoreManager.score_());
-    rq.submitString(Config::FIELD_WIDTH - 30, 0, scoreBuf, uiLayer);
-
-    char timeBuf[16];
-    int minutes = elapsedSeconds / 60;
-    int seconds  = elapsedSeconds % 60;
-    sprintf_s(timeBuf, sizeof(timeBuf), "%02d:%02d", minutes, seconds);
-    rq.submitString(Config::FIELD_WIDTH - 8, 0, timeBuf, uiLayer);
-
-    rq.submitString(2, 1, "LEFT/RIGHT: Move  SPACE: Shoot  P: Pause  Q: Quit", uiLayer);
 
     // 枠線（Background レイヤー）
     for (int x = 0; x < Config::FIELD_WIDTH; ++x) {
@@ -137,11 +133,8 @@ void GameScene::draw() {
     mSwarm.draw_();
     mPlayer->draw();
 
-    if (mState == GameState::GameClear) {
-        int msgY = Config::FIELD_HEIGHT / 2;
-        int msgX = Config::FIELD_WIDTH / 2 - 2;
-        rq.submitString(msgX, msgY, "CLEAR!", uiLayer);
-    }
+    // UI（UIBase サブクラスを一括描画）
+    drawUIs_();
 }
 
 void GameScene::debugKillAllInvaders_() {
