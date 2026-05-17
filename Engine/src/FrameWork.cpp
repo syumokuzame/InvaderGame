@@ -1,21 +1,20 @@
 #include "FrameWork.h"
 #include "SceneBase.h"
-#include "ActorBase.h"
 #include <windows.h>
 
 namespace engine {
 
-FrameWork::FrameWork(SceneBase* scene, int frameMs)
-    : scene_(scene), frameMs_(frameMs), sceneFactory_(nullptr) {}
+FrameWork::FrameWork(int frameMs)
+    : scene_(nullptr), frameMs_(frameMs), sceneFactory_(nullptr) {}
 
 FrameWork::~FrameWork() {
     delete scene_;
-    for (auto actor : actors_) {
-        delete actor;
-    }
+    // allocator_ はデストラクタで自動解放
 }
 
-void FrameWork::run() {
+void FrameWork::run(SceneType initialScene) {
+    scene_ = sceneFactory_(initialScene, allocator_);
+
     while (true) {
         DWORD frameStart = GetTickCount();
 
@@ -23,23 +22,15 @@ void FrameWork::run() {
 
         // シーン切り替えチェック（Framework側でシーンを生成）
         if (scene_->hasNextScene()) {
-            if (!sceneFactory_) {
-                // factory が登録されていない場合はエラー
-                break;
-            }
-            
+            if (!sceneFactory_) break;
+
             SceneType nextType = scene_->getNextSceneType();
-            
-            // 現在のシーンの Actor をクリア
-            scene_->clearActors();
-            
-            // 現在のシーンを削除
+
+            // 旧シーンを削除 → Allocatorをクリア → 新シーンを生成
             delete scene_;
-            
-            // 新しいシーンを作成（actors_を渡す）
-            scene_ = sceneFactory_(nextType);
-            
-            scene_->clearNextScene();  // 新シーンの切り替え要求をリセット
+            allocator_.clear();
+            scene_ = sceneFactory_(nextType, allocator_);
+            scene_->clearNextScene();
             continue;
         }
 
@@ -56,3 +47,4 @@ void FrameWork::run() {
 }
 
 }  // namespace engine
+

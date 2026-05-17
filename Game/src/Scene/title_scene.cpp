@@ -5,8 +5,8 @@
 
 namespace game {
 
-TitleScene::TitleScene(std::vector<engine::ActorBase*>& actors)
-    : engine::SceneBase(actors) {
+TitleScene::TitleScene(engine::Allocator& allocator)
+    : engine::SceneBase(allocator) {
     // 前シーンからのキー入力状態をリセット
     input_.poll();
 }

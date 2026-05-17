@@ -6,23 +6,18 @@
 
 int main() {
     try {
-        // Actor管理用メモリを先に確保
-        std::vector<engine::ActorBase*> actors;
+        engine::FrameWork fw(Config::FRAME_MS);
 
-        // シーン生成用の factory を登録（actors への参照をキャプチャ）
-        auto sceneFactory = [&actors](engine::SceneType type) -> engine::SceneBase* {
+        // シーン生成 factory を登録（Allocator は Framework が管理・提供する）
+        fw.setSceneFactory([](engine::SceneType type, engine::Allocator& alloc) -> engine::SceneBase* {
             switch (type) {
-                case engine::SceneType::Title:
-                    return new game::TitleScene(actors);
-                case engine::SceneType::Game:
-                    return new game::GameScene(actors);
+                case engine::SceneType::Title: return new game::TitleScene(alloc);
+                case engine::SceneType::Game:  return new game::GameScene(alloc);
             }
             return nullptr;
-        };
+        });
 
-        engine::FrameWork fw(new game::TitleScene(actors), Config::FRAME_MS);
-        fw.setSceneFactory(sceneFactory);
-        fw.run();
+        fw.run(engine::SceneType::Title);
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;

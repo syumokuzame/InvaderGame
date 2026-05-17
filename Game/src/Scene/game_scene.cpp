@@ -7,12 +7,11 @@
 
 namespace game {
 
-GameScene::GameScene(std::vector<engine::ActorBase*>& actors)
-    : engine::SceneBase(actors),
+GameScene::GameScene(engine::Allocator& allocator)
+    : engine::SceneBase(allocator),
       state_(GameState::Playing), level_(1), clearCounter_(0), lastAliveCount_(0) {
-    // Player をヒープ確保して actors_ に追加
-    player_ = new Player();
-    actors_.push_back(player_);
+    // Player を Allocator 経由でヒープ確保（解放は Allocator が担う）
+    player_ = allocator_.create<Player>();
 
     // 前シーンからのキー入力状態をリセット
     input_.poll();
@@ -20,10 +19,6 @@ GameScene::GameScene(std::vector<engine::ActorBase*>& actors)
     for (const auto& inv : swarm_.invaders()) {
         if (inv.isActive()) lastAliveCount_++;
     }
-}
-
-GameScene::~GameScene() {
-    // clearActors() は親クラスで呼ばれる
 }
 
 void GameScene::processInput() {
