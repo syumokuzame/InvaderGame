@@ -9,6 +9,19 @@
 実装は以下のカテゴリ別に分割・管理されています。
 各実装指示の完了後、エージェントが該当ドキュメントに自動追記します。
 
+---
+
+### [2025-02-17] ActorModelシステム導入
+
+- **対象ファイル**: `Engine/include/ActorModel.h`（新規）, `Engine/include/RenderQueue.h`, `Engine/src/RenderQueue.cpp`, `Engine/include/ActorBase.h`, `Engine/src/ActorBase.cpp`, `Game/src/Actor/player.cpp`, `Game/src/Actor/bullet.cpp`, `Game/src/Actor/invader.cpp`, `Game/include/Actor/bullet.h`
+- **内容**:
+  - `ActorModel` 構造体を新設。`cells`（`std::vector<std::string>`）で2D描画形状を保持し、`pivotX/pivotY` で Actor 座標との対応を定義
+  - `RenderQueue` に `submitModel()` と `ModelCommand` を追加。`flush()` でモデルをセルに展開し、スペース/`\0` は透過（他の描画を上書きしない）
+  - `ActorBase` に `mModel` メンバと `draw()` デフォルト実装を追加。サブクラスは `calc()` 内で `mModel.cells` を更新するだけで描画形状を変更できる
+  - `Player`, `Bullet`, `Invader` の各 `draw()` オーバーライドを廃止し、`calc()` 末尾でのモデル更新に一本化
+  - アニメーション（射撃中、移動中、スポーン、消滅）も `mModel.cells` の差し替えで実現
+
+
 ### [プレイヤー機能](specs/player.md)
 - 弾発射システムの実装
 - プレイヤーアニメーション実装（射撃＆移動表現）
