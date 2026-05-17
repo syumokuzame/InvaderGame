@@ -2,6 +2,7 @@
 #include "Scene/game_scene.h"
 #include "RenderQueue.h"
 #include "config.h"
+#include "Logger.h"
 
 namespace game {
 
@@ -9,6 +10,7 @@ TitleScene::TitleScene(engine::Allocator& allocator)
     : engine::SceneBase(allocator) {
     // 前シーンからのキー入力状態をリセット
     mInput.poll_();
+    engine::Logger::instance().log("[SCENE] TitleScene started");
 }
 
 void TitleScene::calc() {
@@ -22,11 +24,13 @@ void TitleScene::calc() {
     }
 
     if (mInput.isQuit_()) {
+        engine::Logger::instance().log("[INPUT] Quit pressed -> game exit");
         quit();
         return;
     }
 
     if (mInput.isEnter_()) {
+        engine::Logger::instance().log("[INPUT] Enter pressed -> GameScene");
         changeScene(engine::SceneType::Game);
         return;
     }

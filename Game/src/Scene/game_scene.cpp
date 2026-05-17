@@ -2,8 +2,10 @@
 #include "Scene/title_scene.h"
 #include "RenderQueue.h"
 #include "config.h"
+#include "Logger.h"
 #include <algorithm>
 #include <ctime>
+#include <string>
 namespace game {
 
 GameScene::GameScene(engine::Allocator& allocator)
@@ -30,6 +32,9 @@ GameScene::GameScene(engine::Allocator& allocator)
     const int msgY = Config::FIELD_HEIGHT / 2;
     mClearMessageUI = addUI_(std::make_unique<engine::UIBase>(msgX, msgY, "CLEAR!"));
     mClearMessageUI->setVisible(false);
+
+    engine::Logger::instance().log(
+        "[SCENE] GameScene started, invaders=" + std::to_string(mLastAliveCount));
 }
 
 void GameScene::processInput_() {
@@ -41,11 +46,15 @@ void GameScene::processInput_() {
         return;
     }
 
-    if (mInput.isQuit_())  { changeScene(engine::SceneType::Title); return; }
+    if (mInput.isQuit_())  {
+        engine::Logger::instance().log("[INPUT] Quit pressed -> TitleScene");
+        changeScene(engine::SceneType::Title); return;
+    }
     if (mInput.isLeft_())  mPlayer->moveLeft_();
     if (mInput.isRight_()) mPlayer->moveRight_();
     if (mInput.isShoot_()) {
         if (mPlayer->shoot_()) {
+            engine::Logger::instance().log("[INPUT] Player shoot");
             mBullets.emplace_back(mPlayer->x(), mPlayer->y() - 1, BulletOwner::Player);
         }
     }
@@ -72,6 +81,9 @@ void GameScene::calc() {
         }
         int defeatedCount = mLastAliveCount - currentAliveCount;
         if (defeatedCount > 0) {
+            engine::Logger::instance().log(
+                "[SCORE] Added " + std::to_string(defeatedCount * 10) +
+                " (total=" + std::to_string(mScoreManager.score_()) + ")");
             mScoreManager.addScore_(defeatedCount * 10);
         }
         mLastAliveCount = currentAliveCount;

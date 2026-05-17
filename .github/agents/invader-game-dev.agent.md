@@ -21,8 +21,62 @@ tools: [execute, read, edit, search, todo, run_in_terminal, send_to_terminal, ge
 cmd /c "%USERPROFILE%\InvaderGame\.vscode\build.bat" 2>&1
 ```
 
-- 終了コードが 0 → ビルド成功。続けて「Git Push フロー」を実行する。
+- 終了コードが 0 → ビルド成功。続けて「実行テストフロー」を実行する。
 - 終了コードが 0 以外 → ビルド失敗。以下の「ビルドエラー修正フロー」を実行する。
+
+## 実行テストフロー
+
+ビルド成功後、**確認なしに**以下のテストを実施する:
+
+### テスト実行手順
+
+1. **旧ログを削除してテストモードで起動**
+   ```powershell
+   Remove-Item "save\debug.log" -ErrorAction SilentlyContinue
+   $proc = Start-Process -FilePath ".\build\InvaderGame.exe" -ArgumentList "--test" -PassThru -WindowStyle Normal
+   $proc.WaitForExit(10000)
+   ```
+   - `--test` フラグ: フレームカウントに基づくスクリプト入力を自動再生し、~4.2秒で自動終了する
+   - `ExitCode` が 0 以外 → クラッシュ判定。ユーザーに報告して修正を試みる
+
+2. **ログファイル読み込み**
+   ```powershell
+   $log = Get-Content "save\debug.log" -Raw -ErrorAction SilentlyContinue
+   ```
+
+3. **各テストケースをログで判定**（テストケース定義: `Game/docs/specs/test-cases.md`）
+
+   | TC | 判定条件 |
+   |----|---------|
+   | TC-001 | `$proc.ExitCode -eq 0` かつ `$log` に `[GAME] Start` が存在 |
+   | TC-002 | `$log` に `[SCENE] TitleScene started` が存在 |
+   | TC-003 | `$log` に `[INPUT] Enter pressed -> GameScene` と `[SCENE] GameScene started` が存在 |
+   | TC-004 | `$log` に `[INPUT] Player shoot` が存在 |
+   | TC-005 | `$log` に `[INPUT] Quit pressed -> TitleScene` と `[SCENE] TitleScene started` が2回以上存在 |
+   | TC-006 | `$log` に `[SCORE] Added` が存在 |
+
+4. **テスト結果の記録**
+   - 結果を `Game/docs/specs/test-cases.md` のテスト実行履歴セクションに追記
+   - フォーマット: `TC-XXX: ✓ PASS` または `TC-XXX: ✗ FAIL（理由）`
+
+### テスト実行時の判定
+
+**全テスト成功の場合:**
+- 「テスト完了 (TC-001〜TC-006 全PASS)」をユーザーに報告
+- Git Push フロー実行へ進む
+
+**テスト失敗の場合:**
+- 失敗した TC 番号と `$log` の実際の内容をユーザーに報告
+- `Game/docs/specs/test-cases.md` から該当テストケースの関連ファイルを特定
+- 3 回までの自動修正を試みる（修正 → ビルド → テスト）
+- 3 回失敗したら、ユーザーに詳細を報告して修正を依頼
+
+### テストスクリプトの拡張ルール
+
+新機能を実装した際に、必要な動作確認が既存テストでカバーされていない場合:
+1. `Engine/include/Logger.h` の `log()` を使って関連ファイルにログを追加
+2. `Game/src/input_handler.cpp` の `poll_()` テストモードブロックに必要なフレーム入力を追加
+3. `Game/docs/specs/test-cases.md` に新テストケース（TC番号・期待ログ・関連ファイル）を追記
 
 ## Git Push フロー
 
@@ -82,8 +136,15 @@ cmd /c "%USERPROFILE%\InvaderGame\.vscode\build.bat" 2>&1
    ↓
 ビルド実行（確認不要）
    ↓
-成功 → Git push（確認不要） → 仕様記録を「完了」として更新 → ユーザーに報告
-失敗 → エラー修正 → 再ビルド → （成功まで繰り返し）
+ビルド成功 → 実行テスト実施（確認不要）
+                ↓
+             テスト成功 → Git push（確認不要） → 仕様記録を「完了」として更新 → ユーザーに報告
+                ↓
+             テスト失敗 → 問題診断 → 修正（最大3回） 
+                ↓ (失敗した場合)
+             ユーザーに詳細報告 → 修正依頼
+   ↓
+ビルド失敗 → エラー修正 → 再ビルド → （成功まで繰り返し）
 ```
 
 ## プロジェクト構造
@@ -120,6 +181,9 @@ save/      ハイスコアデータ
 ## 禁止事項
 
 - ビルド実行前にユーザーへの確認を求めること
+- ビルド成功後、テスト実行前にユーザーへの確認を求めること
+- テスト失敗を無視して Git push すること
 - エラーが出た場合にユーザーに修正を任せること（自律的に修正する）
 - `docs/game-specs.md` への記録を省略すること
 - **Git 操作（add/commit/push）の実行前にユーザーの許可を求めること** — 必ずバックグラウンドで自動実行する
+- `Game/docs/specs/test-cases.md` への記録を省略すること — テスト実行ログを必ず記載する

@@ -2,9 +2,19 @@
 #include "Scene/game_scene.h"
 #include "config.h"
 #include "FrameWork.h"
+#include "Logger.h"
+#include "input_handler.h"
 #include <iostream>
+#include <string>
 
-int main() {
+int main(int argc, char* argv[]) {
+    // --test 引数でテストモード起動: スクリプト入力を再生しログを記録して自動終了
+    bool testMode = (argc > 1 && std::string(argv[1]) == "--test");
+    if (testMode) {
+        game::InputHandler::enableTestMode();
+        engine::Logger::instance().init("save/debug.log");
+    }
+
     try {
         engine::FrameWork fw(Config::FRAME_MS);
 
@@ -18,6 +28,9 @@ int main() {
         });
 
         fw.run(engine::SceneType::Title);
+        if (testMode) {
+            engine::Logger::instance().log("[GAME] End");
+        }
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;

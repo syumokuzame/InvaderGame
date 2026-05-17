@@ -21,6 +21,17 @@
   - `Player`, `Bullet`, `Invader` の各 `draw()` オーバーライドを廃止し、`calc()` 末尾でのモデル更新に一本化
   - アニメーション（射撃中、移動中、スポーン、消滅）も `mModel.cells` の差し替えで実現
 
+---
+
+### [2026-05-17] UIBaseシステム導入
+
+- **対象ファイル**: `Engine/include/UIBase.h`（新規）, `Engine/src/UIBase.cpp`（新規）, `Engine/include/SceneBase.h`, `Engine/src/SceneBase.cpp`, `Game/include/Scene/game_ui.h`（新規）, `Game/src/Scene/game_ui.cpp`（新規）, `Game/include/Scene/game_scene.h`, `Game/src/Scene/game_scene.cpp`
+- **内容**:
+  - `engine::UIBase` を新設。文字列を指定座標に描画する UI の基底クラス。`calc()` でテキスト更新、`draw()` で RenderQueue UI 層に登録、`setVisible()` で表示制御
+  - `engine::SceneBase` に `mUIs_`（`vector<unique_ptr<UIBase>>`）と `addUI_() / calcUIs_() / drawUIs_()` ヘルパーを追加。Game 層シーンは `addUI_()` で登録するだけで UI の lifecycle を管理できる
+  - `game::ScoreUI` / `game::TimerUI` を `game_ui.h/.cpp` に実装。`calc()` で `setText()` を呼ぶパターンで動的テキストを実現
+  - `GameScene` の draw() 内の直接 `submitString()` 呼び出しをすべて UIBase サブクラスに置き換え。CLEAR! メッセージは `mClearMessageUI->setVisible()` で状態連動して制御
+
 
 ### [プレイヤー機能](specs/player.md)
 - 弾発射システムの実装

@@ -3,6 +3,13 @@
 
 namespace game {
 
+bool InputHandler::sTestMode  = false;
+int  InputHandler::sTestFrame = 0;
+
+void InputHandler::enableTestMode() {
+    sTestMode = true;
+}
+
 // X マクロでキーボタン情報を再定義
 #define KEY_BUTTONS(X) \
     X(Left,  left) \
@@ -21,6 +28,23 @@ void InputHandler::poll_() {
     #define RESET_MEMBER(CamelCase, snake_case) m##CamelCase = false;
     KEY_BUTTONS(RESET_MEMBER)
     #undef RESET_MEMBER
+
+    if (sTestMode) {
+        // フレームカウンタを進めてスクリプト入力を再生する
+        // 各シーンのコンストラクタでも poll_() が呼ばれるため、閾値にさらに余裕を持たせてある
+        ++sTestFrame;
+        //  65: Titleクールダウン(30f) + 待機(35f) → Enter で GameScene へ
+        // 130: Gameクールダウン(30f) + 待機(34f) → 射撃
+        // 145: デバッグ全滅 → スコア加算検証用
+        // 160: Qキー → TitleScene へ戻る
+        // 260: Qキー → ゲーム終了、exe自動終了
+        if      (sTestFrame ==  65) mEnter        = true;
+        else if (sTestFrame == 130) mShoot        = true;
+        else if (sTestFrame == 145) mDebugKillAll = true;
+        else if (sTestFrame == 160) mQuit         = true;
+        else if (sTestFrame == 260) mQuit         = true;
+        return;
+    }
 
     // GetAsyncKeyState() で各キーの状態を確認
     // 戻り値の最上位ビットが 1 の場合、キーが押されている
