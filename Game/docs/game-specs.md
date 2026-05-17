@@ -64,7 +64,27 @@
   - `game::main.cpp` で lambda factory を登録し、SceneType::Title/Game に対応するシーンを生成
   - **メリット**: Engine層がGame層のシーン型情報を持たず、Framework側がシーン生成を統一的に管理
 
-### [2026-05-16] Actor メモリ管理：スタック→ヒープ化
+### [2026-05-17] 汎用Allocator導入・ヒープ管理のFramework集約
+- **対象ファイル**: 
+  - `Engine/include/Allocator.h`（新規作成）
+  - `Engine/include/SceneBase.h`（Allocator& 参照に変更、updateActors等削除）
+  - `Engine/src/SceneBase.cpp`（簡略化）
+  - `Engine/include/FrameWork.h`（Allocator 内包、SceneFactory引数変更、run(SceneType)）
+  - `Engine/src/FrameWork.cpp`（run() に初期SceneType受け取り、scene切替時に allocator_.clear()）
+  - `Game/include/Scene/game_scene.h`（コンストラクタ引数を Allocator& に変更）
+  - `Game/src/Scene/game_scene.cpp`（allocator_.create<Player>() でヒープ確保）
+  - `Game/include/Scene/title_scene.h`（同上）
+  - `Game/src/Scene/title_scene.cpp`（同上）
+  - `Game/src/main.cpp`（actors vector 除去、factory に Allocator& を渡す形に変更）
+- **内容**:
+  - `engine::Allocator` を新規作成。`create<T>(args...)` で任意の型をヒープ確保し所有権を持つ。`clear()` で逆順に一括 delete
+  - `Allocator` の型消去デリータにより `ActorBase` に限らず任意の型を管理可能
+  - `engine::FrameWork` が `Allocator allocator_` を内包し、全シーンで共有
+  - `SceneFactory` の型を `std::function<SceneBase*(SceneType, Allocator&)>` に変更
+  - `FrameWork::run(SceneType initialScene)` でループ開始時に最初のシーンを生成
+  - シーン遷移時: 旧シーン delete → `allocator_.clear()` → 新シーン生成 の順で安全に解放
+  - `main.cpp` から `std::vector<ActorBase*>` 手動管理を撤去、factory lambda で `alloc` を受け取るだけのシンプルな構造に
+- **メリット**: Engine 層の Allocator が汎用型管理、将来的に Actor 以外（UIオブジェクト等）もヒープ確保できる拡張性
 - **対象ファイル**: 
   - `Engine/include/SceneBase.h`（新規：updateActors(), drawActors(), clearActors()）
   - `Engine/src/SceneBase.cpp`（新規作成）
