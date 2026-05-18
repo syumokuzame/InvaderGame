@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../Engine/include/SceneBase.h"
-#include "../input_handler.h"
+#include "../../Engine/include/InputHandler.h"
 
 namespace game {
 
@@ -13,7 +13,7 @@ public:
     void draw() override;
 
 private:
-    InputHandler mInput;
+    engine::InputHandler mInput;
     int          mFrameCount     = 0;   // 点滅エフェクト用
     int          mInputCooldown  = 30;  // 入力受け付けクールダウン（フレーム）
 };

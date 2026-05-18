@@ -11,6 +11,22 @@
 
 ---
 
+### [2026-05-17] InputHandler を Engine 層へ移植・テスト機構分離
+
+- **対象ファイル（新規）**: `Engine/include/InputHandler.h`, `Engine/src/InputHandler.cpp`, `Engine/include/TestInputScript.h`, `Engine/src/TestInputScript.cpp`
+- **対象ファイル（変更）**: `Game/include/Scene/game_scene.h`, `Game/include/Scene/title_scene.h`, `Game/src/main.cpp`
+- **対象ファイル（互換シム化）**: `Game/include/input_handler.h`, `Game/src/input_handler.cpp`
+- **内容**:
+  - `game::InputHandler` を `engine::InputHandler` へ移植（`namespace engine`、`Engine/include/` 配下）
+  - テスト用フレームカウンタ・モードフラグを `InputHandler` から分離し、`engine::TestInputScript` クラスを新設
+  - `InputHandler::setTestProvider(TestProvider)` を使ってラムダ（コールバック）を注入することで、テスト入力を差し替え可能に
+  - `TestInputScript::addEvent(frame, setter)` でフレーム番号とボタン注入ラムダを登録し、`createProvider()` でプロバイダーを生成
+  - テストスクリプトの**内容**（どのフレームで何を押すか）は `Game/src/main.cpp` に残し、**仕組み**のみ Engine 層に移動
+  - Game 側の旧ファイルはコメント付き互換シムに置き換え（削除は行わず）
+- **設計ポイント**: 将来 Google Test 等のテストフレームワークから `setTestProvider()` にモックを注入することで、シーン単体テストが可能になる
+
+---
+
 ### [2025-02-17] ActorModelシステム導入
 
 - **対象ファイル**: `Engine/include/ActorModel.h`（新規）, `Engine/include/RenderQueue.h`, `Engine/src/RenderQueue.cpp`, `Engine/include/ActorBase.h`, `Engine/src/ActorBase.cpp`, `Game/src/Actor/player.cpp`, `Game/src/Actor/bullet.cpp`, `Game/src/Actor/invader.cpp`, `Game/include/Actor/bullet.h`

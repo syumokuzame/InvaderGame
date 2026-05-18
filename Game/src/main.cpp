@@ -3,7 +3,8 @@
 #include "config.h"
 #include "FrameWork.h"
 #include "Logger.h"
-#include "input_handler.h"
+#include "InputHandler.h"
+#include "TestInputScript.h"
 #include <iostream>
 #include <string>
 
@@ -11,7 +12,18 @@ int main(int argc, char* argv[]) {
     // --test 引数でテストモード起動: スクリプト入力を再生しログを記録して自動終了
     bool testMode = (argc > 1 && std::string(argv[1]) == "--test");
     if (testMode) {
-        game::InputHandler::enableTestMode();
+        engine::TestInputScript script;
+        //  65: Titleクールダウン(30f) + 待機(35f) → Enter で GameScene へ
+        // 130: Gameクールダウン(30f) + 待機(34f) → 射撃
+        // 145: デバッグ全滅 → スコア加算検証用
+        // 160: Qキー → TitleScene へ戻る
+        // 260: Qキー → ゲーム終了、exe 自動終了
+        script.addEvent( 65, [](engine::InputHandler& in) { in.setEnter_(true);        });
+        script.addEvent(130, [](engine::InputHandler& in) { in.setShoot_(true);        });
+        script.addEvent(145, [](engine::InputHandler& in) { in.setDebugKillAll_(true); });
+        script.addEvent(160, [](engine::InputHandler& in) { in.setQuit_(true);         });
+        script.addEvent(260, [](engine::InputHandler& in) { in.setQuit_(true);         });
+        engine::InputHandler::setTestProvider(script.createProvider());
         engine::Logger::instance().init("save/debug.log");
     }
 
