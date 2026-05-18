@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ActorBase.h"
 #include "Allocator.h"
 #include "UIBase.h"
 #include <memory>
@@ -49,6 +50,20 @@ protected:
     void calcUIs_();
     void drawUIs_();
 
+    // アクター管理
+    // 登録順に mActors_ へ追加する（所有権は呼び出し元が保持）
+    void registerActor_(ActorBase* actor);
+
+    // Phase1(preCalc全員) → Phase2(postCalc全員) の2フェーズで走査する
+    void calcActors_();
+
+    // isActive()==false のアクターを mActors_ から除去する
+    // ストレージ側の解放より先に呼ぶこと
+    void cleanupActors_();
+
+    // 登録中の全アクターの draw() を呼ぶ
+    void drawActors_() const;
+
     Allocator& mAllocator;
 
 private:
@@ -57,6 +72,7 @@ private:
     SceneType mNextSceneType = SceneType::Title;
 
     std::vector<std::unique_ptr<UIBase>> mUIs_;
+    std::vector<ActorBase*>              mActors_;
 };
 
 }  // namespace engine

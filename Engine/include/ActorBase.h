@@ -15,7 +15,11 @@ public:
     ActorBase(int x, int y);
     virtual ~ActorBase() = default;
 
-    virtual void calc() = 0;
+    // Phase 1: 移動・アニメーション更新（全アクター必須）
+    virtual void preCalc() = 0;
+
+    // Phase 2: 移動後の状態を使った当たり判定（必要なアクターのみオーバーライド）
+    virtual void postCalc() {}
 
     // デフォルト実装: mModel を RenderQueue に submitModel() で登録する
     // calc() 内で mModel を更新することでアニメーションを実現する

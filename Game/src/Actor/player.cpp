@@ -50,7 +50,7 @@ void Player::clearBullet_() {
     mHasBullet = false;
 }
 
-void Player::calc() {
+void Player::preCalc() {
     // 射撃アニメーションカウンターをデクリメント
     if (mShootFrame > 0) {
         --mShootFrame;

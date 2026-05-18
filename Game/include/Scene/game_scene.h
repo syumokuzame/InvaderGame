@@ -9,6 +9,7 @@
 #include "score_manager.h"
 #include "game_ui.h"
 #include <vector>
+#include <list>
 #include <ctime>
 
 namespace game {
@@ -39,8 +40,8 @@ private:
     Player*           mPlayer;           // ヒープ確保（Allocator管理）
     engine::InputHandler mInput;
     ScoreManager      mScoreManager;
-    std::vector<Bullet> mBullets;        // ローカル管理
-    InvaderSwarm      mSwarm;
+    std::list<Bullet> mBullets;          // ポインタ安定のため list を使用
+    InvaderSwarm      mSwarm;            // mBullets より後に宣言されること
 
     // UIBaseへのオブザーバーポインタ（所有権はSceneBase::mUIs_）
     engine::UIBase*   mClearMessageUI = nullptr;

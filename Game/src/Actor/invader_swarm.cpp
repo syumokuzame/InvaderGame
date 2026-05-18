@@ -2,11 +2,14 @@
 #include "Actor/bullet.h"
 #include "RenderQueue.h"
 #include <algorithm>
+#include <list>
 
 namespace game {
 
-InvaderSwarm::InvaderSwarm()
-    : mDx(1), mSpeed(20), mTimer(0), mShootInterval(60), mShootTimer(0) {
+InvaderSwarm::InvaderSwarm(std::list<Bullet>& bullets)
+    : engine::ActorBase(0, 0),
+      mBullets_(bullets),
+      mDx(1), mSpeed(20), mTimer(0), mShootInterval(60), mShootTimer(0) {
     reset_(1);
 }
 
@@ -59,27 +62,10 @@ void InvaderSwarm::reset_(int level) {
     }
 }
 
-void InvaderSwarm::update_(std::vector<Bullet>& bullets) {
-    // 消滅アニメを進める
+void InvaderSwarm::preCalc() {
+    // 各インベーダーのアニメーション更新
     for (auto& inv : mInvaders) {
-        inv.calc();
-    }
-
-    // プレイヤー弾との当たり判定
-    for (auto& b : bullets) {
-        if (b.owner() != BulletOwner::Player || !b.isActive()) continue;
-        for (auto& inv : mInvaders) {
-            if (!inv.isAlive_()) continue;
-            // 敵機は4マス: (x-1,y), (x,y), (x+1,y), (x,y+1)
-            if ((b.x() == inv.x() - 1 && b.y() == inv.y()) ||
-                (b.x() == inv.x() && b.y() == inv.y()) ||
-                (b.x() == inv.x() + 1 && b.y() == inv.y()) ||
-                (b.x() == inv.x() && b.y() == inv.y() + 1)) {
-                inv.kill_();
-                b.deactivate_();
-                break;
-            }
-        }
+        if (inv.isActive()) inv.preCalc();
     }
 
     // 消滅アニメが終わったインベーダーを除去
@@ -101,21 +87,18 @@ void InvaderSwarm::update_(std::vector<Bullet>& bullets) {
     }
 
     // フィールドの枠内での有効な移動範囲
-    const int LEFT_BOUND = 1;              // 左壁の右側
-    const int RIGHT_BOUND = Config::FIELD_WIDTH - 2;  // 右壁の左側
+    const int LEFT_BOUND = 1;
+    const int RIGHT_BOUND = Config::FIELD_WIDTH - 2;
 
-    // タイマーをカウント
     ++mTimer;
     if (mTimer >= mSpeed) {
         mTimer = 0;
 
-        // 方向変更チェック（枠に到達したか）
         if ((mDx > 0 && maxX >= RIGHT_BOUND) ||
             (mDx < 0 && minX <= LEFT_BOUND)) {
-            mDx = -mDx;  // 方向を反転
+            mDx = -mDx;
         }
 
-        // 全敵機を移動
         for (auto& inv : mInvaders) {
             if (!inv.isAlive_()) continue;
             inv.setPos_(inv.x() + mDx, inv.y());
@@ -123,7 +106,26 @@ void InvaderSwarm::update_(std::vector<Bullet>& bullets) {
     }
 }
 
-void InvaderSwarm::draw_() const {
+void InvaderSwarm::postCalc() {
+    // プレイヤー弾との当たり判定（全アクターの移動が確定した後）
+    for (auto& b : mBullets_) {
+        if (b.owner() != BulletOwner::Player || !b.isActive()) continue;
+        for (auto& inv : mInvaders) {
+            if (!inv.isAlive_()) continue;
+            // 敵機は4マス: (x-1,y), (x,y), (x+1,y), (x,y+1)
+            if ((b.x() == inv.x() - 1 && b.y() == inv.y()) ||
+                (b.x() == inv.x()     && b.y() == inv.y()) ||
+                (b.x() == inv.x() + 1 && b.y() == inv.y()) ||
+                (b.x() == inv.x()     && b.y() == inv.y() + 1)) {
+                inv.kill_();
+                b.deactivate_();
+                break;
+            }
+        }
+    }
+}
+
+void InvaderSwarm::draw() const {
     for (const auto& inv : mInvaders) {
         inv.draw();
     }

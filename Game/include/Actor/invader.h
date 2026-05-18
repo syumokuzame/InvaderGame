@@ -8,7 +8,7 @@ class Invader : public Actor {
 public:
     Invader(int x, int y, int row);
 
-    void calc() override;   // 消滅アニメを1フレーム進める
+    void preCalc() override;   // 消滅アニメを１フレーム進める
 
     bool isActive() const override;
 

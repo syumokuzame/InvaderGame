@@ -15,7 +15,7 @@ public:
     void moveRight_();
     bool shoot_();        // 発射成功なら true
 
-    void calc() override;
+    void preCalc() override;
     bool isActive() const override;
 
     int  lives_()  const { return mLives; }

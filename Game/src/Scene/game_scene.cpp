@@ -10,9 +10,14 @@ namespace game {
 
 GameScene::GameScene(engine::Allocator& allocator)
     : engine::SceneBase(allocator),
-      mState(GameState::Playing), mLevel(1), mClearCounter(0), mLastAliveCount(0) {
+      mState(GameState::Playing), mLevel(1), mClearCounter(0), mLastAliveCount(0),
+      mSwarm(mBullets) {
     // Player を Allocator 経由でヒープ確保（解放は Allocator が担う）
     mPlayer = mAllocator.create<Player>();
+
+    // Actor を登録（弾は生成時に registerActor_ する）
+    registerActor_(mPlayer);
+    registerActor_(&mSwarm);
 
     // 前シーンからのキー入力状態をリセット
     mInput.poll_();
@@ -56,6 +61,7 @@ void GameScene::processInput_() {
         if (mPlayer->shoot_()) {
             engine::Logger::instance().log("[INPUT] Player shoot");
             mBullets.emplace_back(mPlayer->x(), mPlayer->y() - 1, BulletOwner::Player);
+            registerActor_(&mBullets.back());  // 生成した弾を mActors_ に登録
         }
     }
     if (mInput.isDebugKillAll_()) {
@@ -66,15 +72,10 @@ void GameScene::processInput_() {
 void GameScene::calc() {
     processInput_();
 
-    mPlayer->calc();
-
-    for (auto& b : mBullets) {
-        b.calc();
-    }
+    // Phase 1 (preCalc: 全アクター移動) → Phase 2 (postCalc: 当たり判定)
+    calcActors_();
 
     if (mState == GameState::Playing) {
-        mSwarm.update_(mBullets);
-
         int currentAliveCount = 0;
         for (const auto& inv : mSwarm.invaders()) {
             if (inv.isActive()) currentAliveCount++;
@@ -101,7 +102,8 @@ void GameScene::calc() {
             for (const auto& inv : mSwarm.invaders()) {
                 if (inv.isActive()) mLastAliveCount++;
             }
-            mBullets.clear();
+            // 全弾を非アクティブ化（cleanup で mActors_ と mBullets の両方から除去される）
+            for (auto& b : mBullets) b.deactivate_();
             mPlayer->clearBullet_();
             mClearMessageUI->setVisible(false);
             mState = GameState::Playing;
@@ -110,18 +112,19 @@ void GameScene::calc() {
 
     calcUIs_();
 
-    mBullets.erase(
-        std::remove_if(mBullets.begin(), mBullets.end(),
-            [this](const Bullet& b) {
-                if (!b.isActive()) {
-                    if (b.owner() == BulletOwner::Player)
-                        mPlayer->clearBullet_();
-                    return true;
-                }
-                return false;
-            }),
-        mBullets.end()
-    );
+    // 非アクティブアクターを mActors_ から除去（ストレージ解放より先に実行すること）
+    cleanupActors_();
+
+    // 非アクティブ弾を mBullets リストから除去
+    for (auto it = mBullets.begin(); it != mBullets.end(); ) {
+        if (!it->isActive()) {
+            if (it->owner() == BulletOwner::Player)
+                mPlayer->clearBullet_();
+            it = mBullets.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 void GameScene::draw() {
@@ -138,12 +141,8 @@ void GameScene::draw() {
         rq.submit(Config::FIELD_WIDTH - 1, y, '|', bgLayer);
     }
 
-    // Actor（Actor / Bullet レイヤー）
-    for (const auto& b : mBullets)
-        b.draw();
-
-    mSwarm.draw_();
-    mPlayer->draw();
+    // 全アクターを一括描画（RenderQueue がレイヤー順に整列）
+    drawActors_();
 
     // UI（UIBase サブクラスを一括描画）
     drawUIs_();

@@ -10,7 +10,7 @@ class Bullet : public Actor {
 public:
     Bullet(int x, int y, BulletOwner owner);
 
-    void calc() override;
+    void preCalc() override;
     bool isActive() const override;
 
     // 弾は Bullet レイヤーで描画

@@ -5,7 +5,7 @@ namespace game {
 Invader::Invader(int x, int y, int row)
     : Actor(x, y), mRow(row), mAlive(false), mDeathTimer(0), mSpawnFrame(0) {}
 
-void Invader::calc() {
+void Invader::preCalc() {
     // スポーン中：フレームをインクリメント
     if (mSpawnFrame < SPAWN_FRAMES) {
         mSpawnFrame++;

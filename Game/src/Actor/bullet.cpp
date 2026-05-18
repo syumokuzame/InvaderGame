@@ -9,7 +9,7 @@ Bullet::Bullet(int x, int y, BulletOwner owner)
       mActive(true),
       mOwner(owner) {}
 
-void Bullet::calc() {
+void Bullet::preCalc() {
     if (!mActive) {
         mModel.cells = {};  // 非アクティブ時はモデルを空に
         return;
