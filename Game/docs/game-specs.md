@@ -11,6 +11,18 @@
 
 ---
 
+### [2026-05-18] Actor 更新を preCalc / postCalc 2フェーズに分割
+
+- **対象ファイル（変更）**: `Engine/include/ActorBase.h`, `Engine/include/SceneBase.h`, `Engine/src/SceneBase.cpp`, `Game/include/Actor/player.h`, `Game/src/Actor/player.cpp`, `Game/include/Actor/bullet.h`, `Game/src/Actor/bullet.cpp`, `Game/include/Actor/invader.h`, `Game/src/Actor/invader.cpp`, `Game/include/Actor/invader_swarm.h`, `Game/src/Actor/invader_swarm.cpp`, `Game/include/Scene/game_scene.h`, `Game/src/Scene/game_scene.cpp`
+- **内容**:
+  - `ActorBase::calc()` を `preCalc()`（純粋仮想）と `postCalc()`（デフォルト空実装）に分割
+  - `SceneBase` に Actor 管理機能を追加：`registerActor_()`, `calcActors_()`, `cleanupActors_()`, `drawActors_()`
+  - `calcActors_()` が Phase1（全 preCalc） → Phase2（全 postCalc）の順で実行する
+  - `InvaderSwarm` を `engine::ActorBase` 継承に変更し、移動を `preCalc()`・弾との当たり判定を `postCalc()` に分離
+  - `GameScene::mBullets` を `std::vector<Bullet>` から `std::list<Bullet>` に変更（登録後のポインタ安定性確保）
+  - 弾生成時に `registerActor_(&mBullets.back())` で `mActors_` に登録
+  - `GameScene::calc()` は `calcActors_()` 一呼び出しに集約。状態遷移後に `cleanupActors_()` を呼んでから `mBullets` リストをクリーンアップ
+
 ### [2026-05-17] InputHandler を Engine 層へ移植・テスト機構分離
 
 - **対象ファイル（新規）**: `Engine/include/InputHandler.h`, `Engine/src/InputHandler.cpp`, `Engine/include/TestInputScript.h`, `Engine/src/TestInputScript.cpp`

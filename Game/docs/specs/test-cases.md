@@ -108,6 +108,15 @@ else if (sTestFrame == 170) mPause = true;
 
 ## テスト実行履歴
 
+### [2026-05-18] preCalc/postCalc 2フェーズ分割・SceneBase Actor 管理機能追加
+- TC-001: ✓ PASS (ExitCode=0)
+- TC-002: ✓ PASS
+- TC-003: ✓ PASS
+- TC-004: ✓ PASS
+- TC-005: ✓ PASS
+- TC-006: ✓ PASS
+- 変更内容: `ActorBase::calc()` → `preCalc()/postCalc()`、`InvaderSwarm` を `ActorBase` 継承に変更、`GameScene` で `calcActors_()/cleanupActors_()` を使用
+
 ### [2026-05-17] InputHandler を Engine 層へ移植・TestInputScript 分離
 - TC-001: ✓ PASS (ExitCode=0)
 - TC-002: ✓ PASS

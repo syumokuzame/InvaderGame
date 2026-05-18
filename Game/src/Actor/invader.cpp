@@ -78,7 +78,8 @@ int Invader::scoreValue_() const {
 }
 
 bool Invader::isActive() const {
-    return mSpawnFrame < SPAWN_FRAMES || mAlive;
+    // スポーン中、生存中、または消滅アニメ中は active と見なす
+    return mSpawnFrame < SPAWN_FRAMES || mAlive || mDeathTimer > 0;
 }
 
 }  // namespace game
