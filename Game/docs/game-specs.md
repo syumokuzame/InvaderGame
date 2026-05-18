@@ -11,6 +11,26 @@
 
 ---
 
+### [2026-05-18] TestScriptLoader 導入・テストスクリプト設定ファイル化
+
+- **対象ファイル（新規）**: `Engine/include/TestScriptLoader.h`, `Engine/src/TestScriptLoader.cpp`, `Game/docs/specs/test-script.cfg`
+- **対象ファイル（変更）**: `Game/src/main.cpp`
+- **内容**:
+  - `engine::TestScriptLoader` を新設。`test-script.cfg` を読み込んで `TestInputScript` を構築し、期待ログエントリも返す
+  - `test-script.cfg` の書式: `event <frame> <action>` でフレーム入力、`expect <log_entry>` で期待ログを定義。`#` コメント・空行対応
+  - ゲーム終了後に `validateLogs()` が `debug.log` を読み込み、全期待ログを照合して `[TEST] PASS/FAIL:` を書き込む
+  - ExitCode: 全 PASS → 0 / 一部 FAIL → 1（エージェントの TC-001 判定と統合）
+  - `main.cpp` から `TestInputScript` の `addEvent` 直書きをすべて除去
+- **設計ポイント**: 新機能追加時は `test-script.cfg` に `event` / `expect` 行を追記するだけでテストシナリオを拡張できる（C++ ファイルの再コンパイル不要）
+
+### [2026-05-18] Invader 消滅アニメ修正・スコア計算バグ修正
+
+- **対象ファイル（変更）**: `Game/src/Actor/invader.cpp`, `Game/src/Scene/game_scene.cpp`
+- **内容**:
+  - `Invader::isActive()` に `mDeathTimer > 0` を追加して、消滅アニメ中も `true` を返すように修正
+  - 理由：`kill_()` で `mAlive=false` になると、`InvaderSwarm::preCalc()` の `if (inv.isActive())` でスキップされ、消滅アニメが進まない
+  - スコア計算で `inv.isAlive_()` を使用するように修正（生存中のみカウント）
+
 ### [2026-05-18] Actor 更新を preCalc / postCalc 2フェーズに分割
 
 - **対象ファイル（変更）**: `Engine/include/ActorBase.h`, `Engine/include/SceneBase.h`, `Engine/src/SceneBase.cpp`, `Game/include/Actor/player.h`, `Game/src/Actor/player.cpp`, `Game/include/Actor/bullet.h`, `Game/src/Actor/bullet.cpp`, `Game/include/Actor/invader.h`, `Game/src/Actor/invader.cpp`, `Game/include/Actor/invader_swarm.h`, `Game/src/Actor/invader_swarm.cpp`, `Game/include/Scene/game_scene.h`, `Game/src/Scene/game_scene.cpp`

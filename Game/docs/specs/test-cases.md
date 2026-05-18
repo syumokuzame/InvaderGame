@@ -108,6 +108,24 @@ else if (sTestFrame == 170) mPause = true;
 
 ## テスト実行履歴
 
+### [2026-05-18] Invader 消滅アニメ・スコア計算バグ修正
+- TC-001: ✓ PASS (ExitCode=0)
+- TC-002: ✓ PASS
+- TC-003: ✓ PASS
+- TC-004: ✓ PASS
+- TC-005: ✓ PASS
+- TC-006: ✓ PASS
+- 変更内容: `Invader::isActive()` に消滅アニメ中の判定追加、スコア計算で `isAlive_()` を使用
+
+### [2026-05-18] TestScriptLoader 導入・テストスクリプトの設定ファイル化
+- TC-001: ✓ PASS (ExitCode=0、全期待ログ検証済み)
+- TC-002: ✓ PASS ([TEST] PASS: [SCENE] TitleScene started)
+- TC-003: ✓ PASS ([TEST] PASS: [INPUT] Enter / [SCENE] GameScene started)
+- TC-004: ✓ PASS ([TEST] PASS: [INPUT] Player shoot)
+- TC-005: ✓ PASS ([TEST] PASS: [INPUT] Quit / TitleScene)
+- TC-006: ✓ PASS ([TEST] PASS: [SCORE] Added)
+- 変更内容: `TestScriptLoader::load()` で `test-script.cfg` からイベントと期待ログを読み込む。`validateLogs()` でゲーム終了後に自動検証し、`[TEST] PASS/FAIL:` をログへ書き込む。ExitCode が全PASS=0/一部FAIL=1
+
 ### [2026-05-18] preCalc/postCalc 2フェーズ分割・SceneBase Actor 管理機能追加
 - TC-001: ✓ PASS (ExitCode=0)
 - TC-002: ✓ PASS

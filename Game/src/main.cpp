@@ -4,30 +4,22 @@
 #include "FrameWork.h"
 #include "Logger.h"
 #include "InputHandler.h"
-#include "TestInputScript.h"
+#include "TestScriptLoader.h"
 #include <iostream>
 #include <string>
 
 int main(int argc, char* argv[]) {
-    // --test 引数でテストモード起動: スクリプト入力を再生しログを記録して自動終了
+    // --test 引数でテストモード起動: 設定ファイルからスクリプトを読み込み自動終了
     bool testMode = (argc > 1 && std::string(argv[1]) == "--test");
-    if (testMode) {
-        engine::TestInputScript script;
-        //  65: Titleクールダウン(30f) + 待機(35f) → Enter で GameScene へ
-        // 130: Gameクールダウン(30f) + 待機(34f) → 射撃
-        // 145: デバッグ全滅 → スコア加算検証用
-        // 160: Qキー → TitleScene へ戻る
-        // 260: Qキー → ゲーム終了、exe 自動終了
-        script.addEvent( 65, [](engine::InputHandler& in) { in.setEnter_(true);        });
-        script.addEvent(130, [](engine::InputHandler& in) { in.setShoot_(true);        });
-        script.addEvent(145, [](engine::InputHandler& in) { in.setDebugKillAll_(true); });
-        script.addEvent(160, [](engine::InputHandler& in) { in.setQuit_(true);         });
-        script.addEvent(260, [](engine::InputHandler& in) { in.setQuit_(true);         });
-        engine::InputHandler::setTestProvider(script.createProvider());
-        engine::Logger::instance().init("save/debug.log");
-    }
 
     try {
+        engine::TestScriptLoader::LoadResult testData;
+        if (testMode) {
+            testData = engine::TestScriptLoader::load("Game/docs/specs/test-script.cfg");
+            engine::InputHandler::setTestProvider(testData.script.createProvider());
+            engine::Logger::instance().init("save/debug.log");
+        }
+
         engine::FrameWork fw(Config::FRAME_MS);
 
         // シーン生成 factory を登録（Allocator は Framework が管理・提供する）
@@ -40,8 +32,12 @@ int main(int argc, char* argv[]) {
         });
 
         fw.run(engine::SceneType::Title);
+
         if (testMode) {
             engine::Logger::instance().log("[GAME] End");
+            bool allPass = engine::TestScriptLoader::validateLogs(
+                "save/debug.log", testData.expectedLogs);
+            return allPass ? 0 : 1;
         }
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;

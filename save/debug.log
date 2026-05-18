@@ -9,3 +9,10 @@
 [SCENE] TitleScene started
 [INPUT] Quit pressed -> game exit
 [GAME] End
+[TEST] PASS: [GAME] Start
+[TEST] PASS: [SCENE] TitleScene started
+[TEST] PASS: [INPUT] Enter pressed -> GameScene
+[TEST] PASS: [SCENE] GameScene started
+[TEST] PASS: [INPUT] Player shoot
+[TEST] PASS: [INPUT] Quit pressed -> TitleScene
+[TEST] PASS: [SCORE] Added
