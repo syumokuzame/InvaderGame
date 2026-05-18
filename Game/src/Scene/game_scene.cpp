@@ -23,7 +23,7 @@ GameScene::GameScene(engine::Allocator& allocator)
     mInput.poll_();
     mGameStartTime = std::time(nullptr);
     for (const auto& inv : mSwarm.invaders()) {
-        if (inv.isActive()) mLastAliveCount++;
+        if (inv.isAlive_()) mLastAliveCount++;  // 生存中のインベーダーのみカウント
     }
 
     // UI 登録（所有権は SceneBase::mUIs_ が管理）
@@ -78,7 +78,7 @@ void GameScene::calc() {
     if (mState == GameState::Playing) {
         int currentAliveCount = 0;
         for (const auto& inv : mSwarm.invaders()) {
-            if (inv.isActive()) currentAliveCount++;
+            if (inv.isAlive_()) currentAliveCount++;  // ← isAlive_() を使用（消滅アニメ中は除外）
         }
         int defeatedCount = mLastAliveCount - currentAliveCount;
         if (defeatedCount > 0) {
@@ -100,7 +100,7 @@ void GameScene::calc() {
             mSwarm.reset_(mLevel);
             mLastAliveCount = 0;
             for (const auto& inv : mSwarm.invaders()) {
-                if (inv.isActive()) mLastAliveCount++;
+                if (inv.isAlive_()) mLastAliveCount++;  // 生存中のインベーダーのみカウント
             }
             // 全弾を非アクティブ化（cleanup で mActors_ と mBullets の両方から除去される）
             for (auto& b : mBullets) b.deactivate_();

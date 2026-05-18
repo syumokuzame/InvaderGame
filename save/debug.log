@@ -1,9 +1,10 @@
 [GAME] Start
 [SCENE] TitleScene started
 [INPUT] Enter pressed -> GameScene
-[SCENE] GameScene started, invaders=30
+[SCENE] GameScene started, invaders=0
 [INPUT] Player shoot
-[SCORE] Added 300 (total=0)
+[SCORE] Added 10 (total=0)
+[SCORE] Added 290 (total=10)
 [INPUT] Quit pressed -> TitleScene
 [SCENE] TitleScene started
 [INPUT] Quit pressed -> game exit
