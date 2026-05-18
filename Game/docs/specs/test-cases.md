@@ -233,6 +233,18 @@ else if (sTestFrame == 170) mPause = true;
 
 各実装ごとのテスト実行結果を記録します。
 
+### [2026-05-18] 背景描画をEngine側(SceneBase)に移動
+- **テスト実行者**: エージェント自動実行
+- **実行コマンド**: `.\build\InvaderGame.exe --test`
+- **テスト結果**: 
+  - TC-001: ✓ PASS (ExitCode=0)
+  - TC-002: ✓ PASS ([SCENE] TitleScene started)
+  - TC-003: ✓ PASS ([INPUT] Enter / [SCENE] GameScene started)
+  - TC-004: ✓ PASS ([INPUT] Player shoot)
+  - TC-005: ✓ PASS ([INPUT] Quit / [SCENE] TitleScene x2)
+  - TC-006: ✓ PASS ([SCORE] Added)
+- **問題**: なし
+
 ### [実装日] <実装内容>
 - **テスト実行者**: エージェント自動実行
 - **実行コマンド**: `.\build\InvaderGame.exe`

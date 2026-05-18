@@ -11,6 +11,17 @@
 
 ---
 
+### [2026-05-18] 背景描画をEngine側(SceneBase)に移動
+
+- **対象ファイル（新規）**: なし
+- **対象ファイル（変更）**: `Engine/include/SceneBase.h`, `Engine/src/SceneBase.cpp`, `Game/src/Scene/game_scene.cpp`
+- **内容**:
+  - `SceneBase` に保護メソッド `drawBackground_(int width, int height)` を追加
+  - メソッド内で枠線（`=` と `|`）を Background レイヤーに描画
+  - `GameScene::draw()` から背景描画ロジック（手書きの枠線ループ）を削除し、`drawBackground_(Config::FIELD_WIDTH, Config::FIELD_HEIGHT)` に置き換え
+  - Engine層が画面描画の基盤機能（背景・枠線）を統一管理できるように設計
+- **設計ポイント**: Game層は背景描画の詳細を知らず、Engine側で共通的に提供されるヘルパーメソッドを活用。将来他のシーン（例：MenuScene）を追加する際も、同じ `drawBackground_()` で一貫性を保ちやすい
+
 ### [2026-05-18] TestScriptLoader 導入・テストスクリプト設定ファイル化
 
 - **対象ファイル（新規）**: `Engine/include/TestScriptLoader.h`, `Engine/src/TestScriptLoader.cpp`, `Game/docs/specs/test-script.cfg`

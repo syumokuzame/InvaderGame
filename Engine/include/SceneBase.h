@@ -64,6 +64,9 @@ protected:
     // 登録中の全アクターの draw() を呼ぶ
     void drawActors_() const;
 
+    // 背景（枠線）を描画する
+    void drawBackground_(int width, int height);
+
     Allocator& mAllocator;
 
 private:

@@ -1,4 +1,5 @@
 #include "../include/SceneBase.h"
+#include "../include/RenderQueue.h"
 #include <algorithm>
 
 namespace engine {
@@ -46,6 +47,21 @@ void SceneBase::cleanupActors_() {
 void SceneBase::drawActors_() const {
     for (const auto* a : mActors_) {
         if (a->isActive()) a->draw();
+    }
+}
+
+void SceneBase::drawBackground_(int width, int height) {
+    auto& rq = RenderQueue::instance();
+    const int bgLayer = static_cast<int>(RenderLayer::Background);
+
+    // 枠線（Background レイヤー）
+    for (int x = 0; x < width; ++x) {
+        rq.submit(x, 2, '=', bgLayer);
+        rq.submit(x, height - 1, '=', bgLayer);
+    }
+    for (int y = 3; y < height - 1; ++y) {
+        rq.submit(0, y, '|', bgLayer);
+        rq.submit(width - 1, y, '|', bgLayer);
     }
 }
 

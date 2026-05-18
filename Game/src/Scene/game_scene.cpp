@@ -128,18 +128,8 @@ void GameScene::calc() {
 }
 
 void GameScene::draw() {
-    auto& rq = engine::RenderQueue::instance();
-    const int bgLayer = static_cast<int>(engine::RenderLayer::Background);
-
-    // 枠線（Background レイヤー）
-    for (int x = 0; x < Config::FIELD_WIDTH; ++x) {
-        rq.submit(x, 2, '=', bgLayer);
-        rq.submit(x, Config::FIELD_HEIGHT - 1, '=', bgLayer);
-    }
-    for (int y = 3; y < Config::FIELD_HEIGHT - 1; ++y) {
-        rq.submit(0, y, '|', bgLayer);
-        rq.submit(Config::FIELD_WIDTH - 1, y, '|', bgLayer);
-    }
+    // 背景を描画（枠線はEngine側で処理）
+    drawBackground_(Config::FIELD_WIDTH, Config::FIELD_HEIGHT);
 
     // 全アクターを一括描画（RenderQueue がレイヤー順に整列）
     drawActors_();
