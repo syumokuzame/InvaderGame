@@ -6,9 +6,8 @@
 
 namespace game {
 
-InvaderSwarm::InvaderSwarm(std::list<Bullet>& bullets)
+InvaderSwarm::InvaderSwarm()
     : engine::ActorBase(0, 0),
-      mBullets_(bullets),
       mDx(1), mSpeed(20), mTimer(0), mShootInterval(60), mShootTimer(0) {
     reset_(1);
 }
@@ -68,12 +67,8 @@ void InvaderSwarm::preCalc() {
         if (inv.isActive()) inv.preCalc();
     }
 
-    // 消滅アニメが終わったインベーダーを除去
-    mInvaders.erase(
-        std::remove_if(mInvaders.begin(), mInvaders.end(),
-            [](const Invader& inv) { return inv.isFullyDead_(); }),
-        mInvaders.end()
-    );
+    // NOTE: 完全死亡インベーダーの erase は GameScene 側が sweepDead_() で行う
+    //       （cleanupColliders_() で mColliders_ のポインタを先に除去した後）
 
     // 敵機の移動
     if (mInvaders.empty()) return;
@@ -107,22 +102,20 @@ void InvaderSwarm::preCalc() {
 }
 
 void InvaderSwarm::postCalc() {
-    // プレイヤー弾との当たり判定（全アクターの移動が確定した後）
-    for (auto& b : mBullets_) {
-        if (b.owner() != BulletOwner::Player || !b.isActive()) continue;
-        for (auto& inv : mInvaders) {
-            if (!inv.isAlive_()) continue;
-            // 敵機は4マス: (x-1,y), (x,y), (x+1,y), (x,y+1)
-            if ((b.x() == inv.x() - 1 && b.y() == inv.y()) ||
-                (b.x() == inv.x()     && b.y() == inv.y()) ||
-                (b.x() == inv.x() + 1 && b.y() == inv.y()) ||
-                (b.x() == inv.x()     && b.y() == inv.y() + 1)) {
-                inv.kill_();
-                b.deactivate_();
-                break;
-            }
+    // 各インベーダーの ColliderComponent を確認して衝突結果を処理する
+    // （InvaderSwarm は弾の具体型を知らず、CollisionGroup のみで判断）
+    for (auto& inv : mInvaders) {
+        if (!inv.isAlive_()) continue;
+        if (inv.collider()->hasHit()) {
+            inv.kill_();
         }
     }
+}
+
+void InvaderSwarm::sweepDead_() {
+    // isFullyDead_() な Invader を mInvaders から除去する
+    // cleanupColliders_() により mColliders_ のポインタが先に除去されていること
+    mInvaders.remove_if([](const Invader& inv) { return inv.isFullyDead_(); });
 }
 
 void InvaderSwarm::draw() const {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Actor/actor.h"
+#include "ColliderComponent.h"
 
 namespace game {
 
@@ -21,6 +22,9 @@ public:
     void setPos_(int x, int y);
     void spawn_();  // スポーンアニメーション開始
 
+    // 当たり判定コンポーネント（mColliders_ 経由で SceneBase が collision 走査に使用）
+    engine::ColliderComponent* collider() override { return &mCollider_; }
+
 private:
     // 消滅アニメーション: * → + → . → 消滅（各4フレーム計12フレーム）
     static constexpr int DEATH_FRAMES = 12;
@@ -31,6 +35,9 @@ private:
     bool mAlive;
     int  mDeathTimer; // 消滅アニメ残りフレーム数 (0=終了)
     int  mSpawnFrame; // スポーンカウンター (0-3=スポーン中, 4以上=スポーン完了)
+
+    // ヒットボックス: (x-1,y), (x,y), (x+1,y), (x,y+1) の4マス
+    engine::ColliderComponent mCollider_;
 };
 
 }  // namespace game

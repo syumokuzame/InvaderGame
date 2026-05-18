@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ActorModel.h"
+#include "ColliderComponent.h"
 #include "RenderQueue.h"
 
 namespace engine {
@@ -30,6 +31,9 @@ public:
     int y() const { return mY; }
 
     virtual bool isActive() const = 0;
+
+    // 当たり判定コンポーネント（当たり判定が不要な Actor はデフォルト nullptr）
+    virtual ColliderComponent* collider() { return nullptr; }
 
 protected:
     int mX;

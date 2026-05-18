@@ -11,6 +11,22 @@
 
 ---
 
+### [2026-05-18] ColliderComponent 導入・当たり判定の疎結合化
+
+- **対象ファイル（新規）**: `Engine/include/ColliderComponent.h`, `Engine/src/ColliderComponent.cpp`
+- **対象ファイル（変更）**: `Engine/include/ActorBase.h`, `Engine/include/SceneBase.h`, `Engine/src/SceneBase.cpp`, `Game/include/Actor/bullet.h`, `Game/src/Actor/bullet.cpp`, `Game/include/Actor/invader.h`, `Game/src/Actor/invader.cpp`, `Game/include/Actor/invader_swarm.h`, `Game/src/Actor/invader_swarm.cpp`, `Game/include/Scene/game_scene.h`, `Game/src/Scene/game_scene.cpp`
+- **内容**:
+  - `engine::ColliderComponent` を新設。衝突グループ（`CollisionGroup::PlayerBullet` / `EnemyBody`）、ヒットボックスセル（相対オフセット）、`HitResult` リストを保持
+  - `ActorBase` に `virtual ColliderComponent* collider() { return nullptr; }` を追加。当たり判定が必要な Actor のみオーバーライドする
+  - `SceneBase` に `mColliders_`（衝突走査のみ参加するアクターのリスト）と `calcCollisions_()` を追加。`calcActors_()` 内の preCalc〜postCalc 間に collision フェーズを挿入
+  - `Bullet` が `engine::CollisionGroup::PlayerBullet` グループのコンポーネントを保持。`postCalc()` で `hasHit()` を確認して非アクティブ化
+  - `Invader` が `engine::CollisionGroup::EnemyBody` グループの4セルコンポーネントを保持。`InvaderSwarm::postCalc()` がコンポーネントを読んで `kill_()` を呼ぶ
+  - `InvaderSwarm` から `mBullets_` 参照を完全除去。Bullet の具体型を知らずに衝突結果だけで処理できるように変更
+  - `mInvaders` を `std::vector<Invader>` → `std::list<Invader>` に変更（登録後のポインタ安定性確保）
+  - `InvaderSwarm::sweepDead_()` を追加。`cleanupColliders_()` の後に呼ぶことで dangling pointer を防ぐ
+  - `GameScene` でコンストラクタ・reset 時に `registerCollider_(&inv)` で Invader を衝突走査リストに登録
+- **疎結合ポイント**: InvaderSwarm は Bullet の存在を知らない。SceneBase の衝突走査が group/mask マッチングで自動的に結果を書き込むため、Game層の各 Actor は自分のコンポーネントを読むだけでよい
+
 ### [2026-05-18] 背景描画をEngine側(SceneBase)に移動
 
 - **対象ファイル（新規）**: なし

@@ -3,7 +3,16 @@
 namespace game {
 
 Invader::Invader(int x, int y, int row)
-    : Actor(x, y), mRow(row), mAlive(false), mDeathTimer(0), mSpawnFrame(0) {}
+    : Actor(x, y), mRow(row), mAlive(false), mDeathTimer(0), mSpawnFrame(0),
+      mCollider_(engine::CollisionGroup::EnemyBody,
+                 engine::CollisionGroup::PlayerBullet) {
+    // ヒットボックス: 敵の4マス (pivot=(1,0) なので相対座標で指定)
+    // (x-1,y), (x,y), (x+1,y), (x,y+1)
+    mCollider_.addCell(-1, 0);
+    mCollider_.addCell( 0, 0);
+    mCollider_.addCell( 1, 0);
+    mCollider_.addCell( 0, 1);
+}
 
 void Invader::preCalc() {
     // スポーン中：フレームをインクリメント

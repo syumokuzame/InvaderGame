@@ -10,14 +10,18 @@ namespace game {
 
 GameScene::GameScene(engine::Allocator& allocator)
     : engine::SceneBase(allocator),
-      mState(GameState::Playing), mLevel(1), mClearCounter(0), mLastAliveCount(0),
-      mSwarm(mBullets) {
+      mState(GameState::Playing), mLevel(1), mClearCounter(0), mLastAliveCount(0) {
     // Player を Allocator 経由でヒープ確保（解放は Allocator が担う）
     mPlayer = mAllocator.create<Player>();
 
     // Actor を登録（弾は生成時に registerActor_ する）
     registerActor_(mPlayer);
     registerActor_(&mSwarm);
+
+    // Invader を衝突走査リストに登録（mActors_ ではなく mColliders_ へ）
+    for (auto& inv : mSwarm.invaders()) {
+        registerCollider_(&inv);
+    }
 
     // 前シーンからのキー入力状態をリセット
     mInput.poll_();
@@ -97,7 +101,13 @@ void GameScene::calc() {
     } else if (mState == GameState::GameClear) {
         mClearCounter++;
         if (mClearCounter >= 60) {
+            // リセット前に古い Invader のコリジョン登録を全消去
+            clearColliders_();
             mSwarm.reset_(mLevel);
+            // 新しい Invader を衝突走査リストに再登録
+            for (auto& inv : mSwarm.invaders()) {
+                registerCollider_(&inv);
+            }
             mLastAliveCount = 0;
             for (const auto& inv : mSwarm.invaders()) {
                 if (inv.isAlive_()) mLastAliveCount++;  // 生存中のインベーダーのみカウント
@@ -114,6 +124,11 @@ void GameScene::calc() {
 
     // 非アクティブアクターを mActors_ から除去（ストレージ解放より先に実行すること）
     cleanupActors_();
+
+    // 完全死亡インベーダーを mColliders_ から除去してから mInvaders から消去する
+    // （順番重要: cleanupColliders_ → sweepDead_ の順で dangling pointer を防ぐ）
+    cleanupColliders_();
+    mSwarm.sweepDead_();
 
     // 非アクティブ弾を mBullets リストから除去
     for (auto it = mBullets.begin(); it != mBullets.end(); ) {

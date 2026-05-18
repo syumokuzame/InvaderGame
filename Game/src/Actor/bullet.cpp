@@ -7,7 +7,16 @@ Bullet::Bullet(int x, int y, BulletOwner owner)
     : Actor(x, y),
       mDy(owner == BulletOwner::Player ? -1 : 1),
       mActive(true),
-      mOwner(owner) {}
+      mOwner(owner),
+      mCollider_(
+          owner == BulletOwner::Player
+              ? engine::CollisionGroup::PlayerBullet
+              : engine::CollisionGroup::None,   // 将来: EnemyBullet
+          owner == BulletOwner::Player
+              ? engine::CollisionGroup::EnemyBody
+              : engine::CollisionGroup::None) {
+    mCollider_.addCell(0, 0);  // 弾は1セルのヒットボックス
+}
 
 void Bullet::preCalc() {
     if (!mActive) {
@@ -29,6 +38,13 @@ void Bullet::preCalc() {
 
 void Bullet::deactivate_() {
     mActive = false;
+}
+
+void Bullet::postCalc() {
+    // ColliderComponent に書き込まれた衝突結果を確認して非アクティブ化
+    if (mCollider_.hasHit()) {
+        mActive = false;
+    }
 }
 
 bool Bullet::isActive() const {

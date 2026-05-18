@@ -233,6 +233,15 @@ else if (sTestFrame == 170) mPause = true;
 
 各実装ごとのテスト実行結果を記録します。
 
+### [2026-05-18] ColliderComponent 導入・当たり判定の疎結合化
+- TC-001: ✓ PASS (ExitCode=0)
+- TC-002: ✓ PASS
+- TC-003: ✓ PASS
+- TC-004: ✓ PASS
+- TC-005: ✓ PASS
+- TC-006: ✓ PASS
+- 変更内容: `engine::ColliderComponent` 新設、`SceneBase::calcCollisions_()` を preCalc〜postCalc 間に追加、`InvaderSwarm` から `mBullets_` を除去
+
 ### [2026-05-18] 背景描画をEngine側(SceneBase)に移動
 - **テスト実行者**: エージェント自動実行
 - **実行コマンド**: `.\build\InvaderGame.exe --test`

@@ -41,7 +41,7 @@ private:
     engine::InputHandler mInput;
     ScoreManager      mScoreManager;
     std::list<Bullet> mBullets;          // ポインタ安定のため list を使用
-    InvaderSwarm      mSwarm;            // mBullets より後に宣言されること
+    InvaderSwarm      mSwarm;
 
     // UIBaseへのオブザーバーポインタ（所有権はSceneBase::mUIs_）
     engine::UIBase*   mClearMessageUI = nullptr;
