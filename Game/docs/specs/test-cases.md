@@ -291,3 +291,22 @@ else if (sTestFrame == 170) mPause = true;
 - **判定**: 成功判定の条件
 - **関連ファイル**: 関連するソースファイルのパス
 ```
+
+---
+
+## テスト実行履歴
+
+### [2026-05-19] JobQueue実装後テスト（Full Rebuild後）
+
+| TC | 結果 |
+|----|------|
+| TC-001 | ✓ PASS |
+| TC-002 | ✓ PASS |
+| TC-003 | ✓ PASS |
+| TC-004 | ✓ PASS |
+| TC-005 | ✓ PASS |
+| TC-006 | ✓ PASS |
+
+**備考**: vtable不整合（SceneBase::calcをvirtual→non-virtualに変更した際の
+インクリメンタルビルド問題）を発見。CMakeFiles\InvaderGame.dir を全削除して
+Full Rebuildを実施後に全TC PASSを確認。

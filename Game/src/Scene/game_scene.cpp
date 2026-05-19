@@ -73,12 +73,27 @@ void GameScene::processInput_() {
     }
 }
 
-void GameScene::calc() {
+void GameScene::sceneCalcImpl_() {
+    // 前フレームの Game 固有後処理
+    // （SceneBase::calc() が cleanupActors_/cleanupColliders_ を完了した後の状態で実行される）
+    // 完全死亡インベーダーを mColliders_ 除去後に mInvaders から消去する
+    mSwarm.sweepDead_();
+
+    // 非アクティブ弾を mBullets リストから除去
+    for (auto it = mBullets.begin(); it != mBullets.end(); ) {
+        if (!it->isActive()) {
+            if (it->owner() == BulletOwner::Player)
+                mPlayer->clearBullet_();
+            it = mBullets.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    // 入力処理
     processInput_();
 
-    // Phase 1 (preCalc: 全アクター移動) → Phase 2 (postCalc: 当たり判定)
-    calcActors_();
-
+    // シーンのロジック計算（前フレーム postCalc 後の Actor 状態を参照）
     if (mState == GameState::Playing) {
         int currentAliveCount = 0;
         for (const auto& inv : mSwarm.invaders()) {
@@ -117,27 +132,6 @@ void GameScene::calc() {
             mPlayer->clearBullet_();
             mClearMessageUI->setVisible(false);
             mState = GameState::Playing;
-        }
-    }
-
-    calcUIs_();
-
-    // 非アクティブアクターを mActors_ から除去（ストレージ解放より先に実行すること）
-    cleanupActors_();
-
-    // 完全死亡インベーダーを mColliders_ から除去してから mInvaders から消去する
-    // （順番重要: cleanupColliders_ → sweepDead_ の順で dangling pointer を防ぐ）
-    cleanupColliders_();
-    mSwarm.sweepDead_();
-
-    // 非アクティブ弾を mBullets リストから除去
-    for (auto it = mBullets.begin(); it != mBullets.end(); ) {
-        if (!it->isActive()) {
-            if (it->owner() == BulletOwner::Player)
-                mPlayer->clearBullet_();
-            it = mBullets.erase(it);
-        } else {
-            ++it;
         }
     }
 }

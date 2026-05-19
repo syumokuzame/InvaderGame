@@ -23,7 +23,7 @@ class GameScene : public engine::SceneBase {
 public:
     explicit GameScene(engine::Allocator& allocator);
 
-    void calc() override;
+    void sceneCalcImpl_() override;
     void draw() override;
 
 private:

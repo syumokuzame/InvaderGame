@@ -8,47 +8,57 @@ namespace engine {
 SceneBase::SceneBase(Allocator& allocator)
     : mAllocator(allocator) {}
 
-UIBase* SceneBase::addUI_(std::unique_ptr<UIBase> ui) {
+void SceneBase::calc() {
+    // Step 1: シーンのビジネスロジック（Game層のoverride）
+    sceneCalcImpl_();
+
+    // Step 2: preCalc フェーズ — 優先度順（昇順）に flush
+    for (auto& e : mActors_)
+        if (e.actor->isActive())
+            mJobQueue_.enqueue([a = e.actor] { a->preCalc(); }, e.priority);
+    mJobQueue_.flush();
+
+    // 衝突判定（フェーズ間の固定順序処理）
+    calcCollisions_();
+
+    // Step 3: postCalc フェーズ — 優先度順（昇順）に flush
+    for (auto& e : mActors_)
+        if (e.actor->isActive())
+            mJobQueue_.enqueue([a = e.actor] { a->postCalc(); }, e.priority);
+    mJobQueue_.flush();
+
+    // Step 4: UI calc フェーズ — 優先度順（昇順）に flush
+    for (auto& e : mUIs_)
+        mJobQueue_.enqueue([u = e.ui.get()] { u->calc(); }, e.priority);
+    mJobQueue_.flush();
+
+    // Step 5: 共通 cleanup（非アクティブなエントリを除去）
+    cleanupActors_();
+    cleanupColliders_();
+}
+
+UIBase* SceneBase::addUI_(std::unique_ptr<UIBase> ui, int priority) {
     auto* ptr = ui.get();
-    mUIs_.push_back(std::move(ui));
+    mUIs_.push_back({std::move(ui), priority});
     return ptr;
 }
 
-void SceneBase::calcUIs_() {
-    for (auto& ui : mUIs_) ui->calc();
-}
-
 void SceneBase::drawUIs_() {
-    for (auto& ui : mUIs_) ui->draw();
+    for (auto& e : mUIs_) e.ui->draw();
 }
 
-void SceneBase::registerActor_(ActorBase* actor) {
-    mActors_.push_back(actor);
-}
-
-void SceneBase::calcActors_() {
-    // Phase 1: preCalc（移動・アニメーション）
-    for (auto* a : mActors_) {
-        if (a->isActive()) a->preCalc();
-    }
-
-    // Collision phase: preCalc 完了後に当たり判定を走らせる
-    calcCollisions_();
-
-    // Phase 2: postCalc（当たり判定結果を受けて状態変更）
-    for (auto* a : mActors_) {
-        if (a->isActive()) a->postCalc();
-    }
+void SceneBase::registerActor_(ActorBase* actor, int priority) {
+    mActors_.push_back({actor, priority});
 }
 
 void SceneBase::calcCollisions_() {
     // collider() を持つアクターを収集（mActors_ と mColliders_ の両方から）
     std::vector<ActorBase*> collidables;
-    for (auto* a : mActors_) {
-        if (a->isActive() && a->collider() != nullptr) collidables.push_back(a);
+    for (auto& e : mActors_) {
+        if (e.actor->isActive() && e.actor->collider() != nullptr) collidables.push_back(e.actor);
     }
-    for (auto* a : mColliders_) {
-        if (a->isActive() && a->collider() != nullptr) collidables.push_back(a);
+    for (auto& e : mColliders_) {
+        if (e.actor->isActive() && e.actor->collider() != nullptr) collidables.push_back(e.actor);
     }
 
     // 全コンポーネントの hits をリセット
@@ -90,25 +100,25 @@ void SceneBase::calcCollisions_() {
 void SceneBase::cleanupActors_() {
     mActors_.erase(
         std::remove_if(mActors_.begin(), mActors_.end(),
-            [](ActorBase* a) { return !a->isActive(); }),
+            [](const ActorEntry& e) { return !e.actor->isActive(); }),
         mActors_.end()
     );
 }
 
 void SceneBase::drawActors_() const {
-    for (const auto* a : mActors_) {
-        if (a->isActive()) a->draw();
+    for (const auto& e : mActors_) {
+        if (e.actor->isActive()) e.actor->draw();
     }
 }
 
-void SceneBase::registerCollider_(ActorBase* actor) {
-    mColliders_.push_back(actor);
+void SceneBase::registerCollider_(ActorBase* actor, int priority) {
+    mColliders_.push_back({actor, priority});
 }
 
 void SceneBase::cleanupColliders_() {
     mColliders_.erase(
         std::remove_if(mColliders_.begin(), mColliders_.end(),
-            [](ActorBase* a) { return !a->isActive(); }),
+            [](const ActorEntry& e) { return !e.actor->isActive(); }),
         mColliders_.end()
     );
 }

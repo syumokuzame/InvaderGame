@@ -13,7 +13,7 @@ TitleScene::TitleScene(engine::Allocator& allocator)
     engine::Logger::instance().log("[SCENE] TitleScene started");
 }
 
-void TitleScene::calc() {
+void TitleScene::sceneCalcImpl_() {
     mInput.poll_();
 
     // クールダウン中は入力を受け付けない

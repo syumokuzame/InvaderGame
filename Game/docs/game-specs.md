@@ -237,3 +237,17 @@
   - `drawHeader()` / `drawInstructions()` 等の Renderer 直接呼び出しを `submitString()` 経由に統一。スコア・時刻などの動的文字列は `std::string` で内部コピーするためダングリング問題なし
 - **メリット**: 描画の z-order 制御が可能になり、将来的にエフェクトや重ね描画の拡張が容易
 
+
+### [2026-05-19] JobQueue機構によるActorCalcの非同期化・優先度制御
+
+- **対象ファイル（新規）**: `Engine/include/JobQueue.h`, `Engine/src/JobQueue.cpp`
+- **対象ファイル（変更）**: `Engine/include/SceneBase.h`, `Engine/src/SceneBase.cpp`, `Game/include/Scene/game_scene.h`, `Game/src/Scene/game_scene.cpp`, `Game/include/Scene/title_scene.h`, `Game/src/Scene/title_scene.cpp`
+- **内容**:
+  - `engine::JobQueue` を新設。`(priority, seq)` の複合キーによる最小ヒープで優先度付きFIFO実行を保証
+  - `enqueue(fn, priority=0)` / `flush()` API。priority値が小さいほど先に実行（同一priorityはFIFO）
+  - `SceneBase::calc()` を non-virtual に変更し、フロー全体を SceneBase が管理
+  - `virtual void sceneCalcImpl_() = 0` を追加。Game層（GameScene/TitleScene）がoverrideしてシーン固有ロジックを実装
+  - 実行フロー: `sceneCalcImpl_()` → preCalcJobQueue flush → collision → postCalcJobQueue flush → UICalcJobQueue flush → cleanup
+  - `addUI_()`, `registerActor_()`, `registerCollider_()` に priority 引数（デフォルト0）を追加
+  - `ActorEntry`, `UIEntry` 構造体でactor/uiとpriorityを一括管理
+- **根本原因と解決**: vtable不整合（calcがvirtual→non-virtualに変更した際にインクリメンタルビルドが追いつかず古いvtableが残存）をFull Rebuild（objファイル全削除）で解決
